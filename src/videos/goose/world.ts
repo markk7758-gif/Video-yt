@@ -165,7 +165,7 @@ export class World {
     }
 
     // ---- materials ----
-    M.grass = lam("grassHD", () => ({ map: grassHD(), color: new THREE.Color(0.82, 0.8, 0.72) }));
+    M.grass = lam("grassHD", () => ({ map: grassHD(), color: new THREE.Color(0.74, 0.74, 0.62) }));
     M.snowG = lam("snowHD", () => ({ map: snowTex() }));
     M.snow = lam("snowCap", () => ({ color: "#f3f6fb" }));
     M.cobble = lam("cobbleHD", () => ({ map: cobbleHD() }));
@@ -180,7 +180,7 @@ export class World {
     M.iron = twoTone(new THREE.MeshPhongMaterial({ color: "#3d414c", specular: "#8a8a8a", shininess: 60 }), 0.15);
     M.gold = twoTone(new THREE.MeshPhongMaterial({ color: "#e0a92c", specular: "#fff0b0", shininess: 50 }), 0.2);
     M.red = lam("velvet", () => ({ color: "#c0333a" }));
-    M.box = lam("lunchRed", () => ({ color: "#d8443c" }));
+    M.box = lam("lunchRed", () => ({ color: "#e4432c" }));
     M.boxRim = lam("lunchRim", () => ({ color: "#f2c23c" }));
     M.ice = lam("iceHD", () => ({ map: iceTex() }));
     M.hallFloor = lam("hallFloorHD", () => ({ map: stoneHD("hallFloorHD", ["#b9a58e", "#ad9982", "#c4b19b", "#a28e78"], "#7d6c5a") }));
@@ -511,7 +511,8 @@ export class World {
       const up = smooth((t - (EV.boxUp - 0.5)) / 0.5);
       this.box.position.y = -25 * (1 - up) + (up >= 1 ? 0 : 0);
       const shut = smooth((t - (EV.boxShut - 0.3)) / 0.3), reopen = smooth((t - 31.3) / 0.7);
-      this.lid.rotation.x = -(Math.PI * 0.62) * (1 - shut + reopen);
+      this.lid.visible = t >= EV.boxShut - 0.32; // swings in from vertical just before the slam (open + edge-on it drew stray lines)
+      this.lid.rotation.x = -(Math.PI / 2) * (1 - shut + reopen);
     }
     for (const fl of this.flags) {
       const p = fl.geometry.attributes.position as THREE.BufferAttribute;
