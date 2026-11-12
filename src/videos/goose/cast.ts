@@ -327,8 +327,8 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
       break;
     }
     case 15: {
-      E(EDWIN, "e", -2.6, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [17.03, "smile_closed"]]), facing: 1 });
-      E(GUARD, "gd", -0.6, wall, WALL2_WALK, { mode: "stand", expr: "neutral" }, { i: 31 });
+      E(EDWIN, "e", 8.4, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [17.03, "smile_closed"]]), facing: 1 });
+      E(GUARD, "gd", 10.4, wall, WALL2_WALK, { mode: "stand", expr: "neutral" }, { i: 31 });
       break;
     }
     case 16: {
@@ -350,8 +350,8 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     }
     case 20: case 21: {
       const cheer = id === 20;
-      E(EDWIN, "e", -2.0, wall, WALL2_WALK, { mode: "stand", expr: cheer ? "laugh" : ex(t, [[0, "grin"], [26.73, "nervous"]]), wave: cheer ? q(Math.sin(t * 9), 20) : undefined, look: cheer ? 0 : -1 });
-      if (cheer) for (const [x, v] of [[0.4, 0], [2.6, 1]] as const) E(GUARD, `gd${v}`, x, wall, WALL2_WALK, { mode: "stand", expr: v ? "grin" : "laugh", wave: q(Math.sin(t * 8 + v * 2), 20) }, { i: 31 + v });
+      E(EDWIN, "e", 9.0, wall, WALL2_WALK, { mode: "stand", expr: cheer ? "laugh" : ex(t, [[0, "grin"], [26.73, "nervous"]]), wave: cheer ? q(Math.sin(t * 9), 20) : undefined, look: cheer ? 0 : -1 });
+      if (cheer) for (const [x, v] of [[11.4, 0], [13.6, 1]] as const) E(GUARD, `gd${v}`, x, wall, WALL2_WALK, { mode: "stand", expr: v ? "grin" : "laugh", wave: q(Math.sin(t * 8 + v * 2), 20) }, { i: 31 + v });
       break;
     }
     case 22: {
@@ -376,24 +376,24 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     case 27: E({ ...EDWIN, build: "adult" }, "ea", H, 0, -1.2, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.boot, "pained"]]), prop: "bowl" }); break;
     // ---- the chef fishes; the eels fish back ----
     case 28: {
-      E(CHEF, "c", 8, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [38.46, "neutral"]]), prop: "rod", facing: 1 });
+      E(CHEF, "c", 12, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [38.46, "neutral"]]), prop: "rod", facing: 1 });
       if (t >= 38.46) {
-        out.fx.push({ key: "bobber", cw: 120, ch: 120, draw: bobber, x: 8.6, y: WATER_Y + 0.12 + 0.03 * Math.sin(t * 5), z: 27.4, w: 0.18, h: 0.18 });
-        eel(out, cam, 8.0, 28.2, { t: t * 0.5, rise: 0.45, expr: "grin" }, true, 0.8);
+        out.fx.push({ key: "bobber", cw: 120, ch: 120, draw: bobber, x: 12.6, y: WATER_Y + 0.12 + 0.03 * Math.sin(t * 5), z: 27.4, w: 0.18, h: 0.18 });
+        eel(out, cam, 12.0, 28.2, { t: t * 0.5, rise: 0.45, expr: "grin" }, true, 0.8);
       }
       break;
     }
-    case 29: eel(out, cam, 8.4, 27.8, { t: t * 0.5, expr: "grin", rod: q(smooth((t - 40.4) / 0.5), 20), rise: 0.95 }, false, 0.85); break;
+    case 29: eel(out, cam, 12.4, 27.8, { t: t * 0.5, expr: "grin", rod: q(smooth((t - 40.4) / 0.5), 20), rise: 0.95 }, false, 0.85); break;
     case 30: {
       const yank = smooth((t - EV.back) / 0.25);
-      E(CHEF, "c", 8, wall, WALL2_WALK + 0.4 * yank, { mode: "stand", expr: "shock", prop: "rod", facing: 1, tilt: 24 * yank });
-      burst(out, t, EV.back, 8.4, wall + 1.6, WALL2_WALK + 0.6, 1.2, "#ffffff", 0.3);
+      E(CHEF, "c", 12, wall, WALL2_WALK + 0.4 * yank, { mode: "stand", expr: "shock", prop: "rod", facing: 1, tilt: 24 * yank });
+      burst(out, t, EV.back, 12.4, wall + 1.6, WALL2_WALK + 0.6, 1.2, "#ffffff", 0.3);
       break;
     }
     // ---- week six: one goose on the horizon ----
-    case 31: E({ ...GUARD, build: "thin" }, "gt", -5.3, wall, WALL2_WALK, {}, { side: true, mirror: false, so: { mode: "stand", expr: ex(t, [[0, "neutral"], [42.59, "stern"]]) }, i: 33 }); break;
+    case 31: E({ ...GUARD, build: "thin" }, "gt", -11.3, wall, WALL2_WALK, {}, { side: true, mirror: false, so: { mode: "stand", expr: ex(t, [[0, "neutral"], [42.59, "stern"]]) }, i: 33 }); break;
     case 32: goose(out, cam, t, HILL[0], HILL[1] - 0.05, HILL[2], { mode: "stand" }, true, false); break;
-    case 33: E({ ...GUARD, build: "thin" }, "gt", -6.0, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "stern"], [44.65, "nervous"]]) }, { i: 33 }); break;
+    case 33: E({ ...GUARD, build: "thin" }, "gt", -12.0, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "stern"], [44.65, "nervous"]]) }, { i: 33 }); break;
     case 34: goose(out, cam, t, HILL[0], HILL[1] - 0.05, HILL[2], { mode: "stand", look: 1 }, true); break;
     // ---- winter ----
     case 35: {
