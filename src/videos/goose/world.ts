@@ -275,7 +275,7 @@ export class World {
     }
     // the arrow slit the goose squeezes through: low in the outer wall's front face
     const slit = new Batch();
-    slit.add(boxGeo(V(SLIT_X - 0.32, 0.05, W2 + W2T / 2 - 0.02), V(SLIT_X + 0.32, 2.6, W2 + W2T / 2 + 0.03)), M.dark);
+    slit.add(boxGeo(V(SLIT_X - 0.2, 0.05, W2 + W2T / 2 - 0.02), V(SLIT_X + 0.2, 2.6, W2 + W2T / 2 + 0.03)), M.dark);
     slit.build(this.wall2);
     // gate arch shadow behind the drawbridge + the drawbridge on a hinge at the outer wall's foot
     const ga = new Batch();
