@@ -368,7 +368,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     }
     case 20: case 21: {
       const cheer = id === 20;
-      E(EDWIN, "e", 9.0, wall, WALL2_WALK, { mode: "stand", expr: cheer ? "laugh" : ex(t, [[0, "grin"], [26.73, "nervous"]]), wave: cheer ? q(Math.sin(t * 9), 20) : undefined, look: cheer ? 0 : -1 });
+      E(EDWIN, "e", cheer ? 9.9 : 9.0, wall, WALL2_WALK, { mode: "stand", expr: cheer ? "laugh" : ex(t, [[0, "grin"], [26.73, "nervous"]]), wave: cheer ? q(Math.sin(t * 9), 20) : undefined, look: cheer ? 0 : -1 });
       if (cheer) for (const [x, v] of [[11.4, 0], [13.6, 1]] as const) E(GUARD, `gd${v}`, x, wall, WALL2_WALK, { mode: "stand", expr: v ? "grin" : "laugh", wave: q(Math.sin(t * 8 + v * 2), 20) }, { i: 31 + v });
       break;
     }
