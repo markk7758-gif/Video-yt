@@ -429,7 +429,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
       break;
     }
     case 40: {
-      E(EDWIN_THIN, "et", H + 1.15, DAIS, -8.6, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.crown, "pained"]]), prop: t < EV.crown ? "crown" : null, facing: -1, look: -1 });
+      E(EDWIN_THIN, "et", H + 1.45, DAIS, -8.9, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.crown, "pained"]]), prop: t < EV.crown ? "crown" : null, facing: -1, look: -1 });
       goose(out, cam, t, H, SEAT, -10.2, { mode: "sit", crown: t >= EV.crown });
       burst(out, t, EV.crown, H + 0.1, SEAT + 1.0, -10.0, 1.0, "#ffe07a");
       break;
