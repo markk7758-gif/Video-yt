@@ -108,7 +108,7 @@ export class Fx {
 // ---------------- placements ----------------
 export type Place = {
   key: string; draw: (p: Pen) => void; x: number; y: number; z: number;
-  scale?: number; mirror?: boolean; yaw?: number; roll?: number; size?: [number, number, number]; sx?: number;
+  scale?: number; mirror?: boolean; yaw?: number; roll?: number; size?: [number, number, number]; sx?: number; sy?: number;
 };
 export type FxPlace = { key: string; cw: number; ch: number; draw: (p: Pen) => void; x: number; y: number; z: number; w: number; h: number; flat?: boolean; rot?: number; soft?: boolean };
 /** sun = world direction TOWARD the sun (optional: when absent the scene's shadow-casting light is used) */
@@ -218,20 +218,38 @@ export type Stage = { places: Place[]; fx: FxPlace[] };
 const H = HALL[0];
 const SEAT = DAIS + 0.62; // goose sits on the throne cushion
 /** expression timeline: the last [time, expr] whose time (minus the 2-frame lead) has passed */
-const ex = (t: number, tl: [number, Expr][]): Expr => { let e = tl[0][1]; for (const [t0, x] of tl) if (t >= t0 - LEAD) e = x; return e; };
+/** time of the last expression switch seen by ex(), consumed by the next human() call (drives the pose pop) */
+let EX_T0 = -1;
+const ex = (t: number, tl: [number, Expr][]): Expr => {
+  let e = tl[0][1]; EX_T0 = -1;
+  for (const [t0, x] of tl) if (t >= t0 - LEAD) { e = x; if (t0 > 0) EX_T0 = t0; }
+  return e;
+};
+/** snappy pop with overshoot after a pose/face change: stretch up, dip, settle (age in s) */
+const popK = (age: number) => (age >= 0 && age < 0.45 ? Math.exp(-age * 9) * Math.cos(age * 22) : 0);
 type PersonOpts = { side?: boolean; mirror?: boolean; so?: SideOpts; scale?: number; shadow?: boolean; i?: number };
 const human = (out: Stage, cam: CamInfo, t: number, o: Outfit, okey: string, x: number, y: number, z: number, fo: FrontOpts, po: PersonOpts = {}) => {
   const i = po.i ?? okey.length * 7;
   const blink = lidAt(t, i);
   const who: Who = { i, o, okey };
-  out.places.push(person(cam, who, x, y, z, { side: !!po.side, mirror: !!po.mirror }, { blink, ...fo }, { blink, ...(po.so ?? {}), expr: po.so?.expr ?? fo.expr }, po.scale ?? 1));
+  const pl = person(cam, who, x, y, z, { side: !!po.side, mirror: !!po.mirror }, { blink, ...fo }, { blink, ...(po.so ?? {}), expr: po.so?.expr ?? fo.expr }, po.scale ?? 1);
+  // idle life: slow breathing squash + a small sway from the feet, own phase per character; a squash-stretch pop
+  // with overshoot on every face change (lands with the 2-frame lead on the beat word)
+  const ph = hh(i, 17) * Math.PI * 2, still = (fo.mode ?? "stand") === "stand" || po.side;
+  const k = EX_T0 > 0 ? popK(t - (EX_T0 - LEAD)) : 0;
+  EX_T0 = -1;
+  pl.sy = (1 + 0.07 * k) * (still ? 1 + 0.012 * Math.sin(2 * Math.PI * 0.5 * t + ph) : 1);
+  pl.sx = 1 - 0.045 * k;
+  if (still && !po.side) pl.roll = (fo.tilt ? 0 : 0.018 * Math.sin(2 * Math.PI * 0.31 * t + 1.3 * ph)) + 0.03 * k;
+  out.places.push(pl);
   if (po.shadow !== false) blob(out, x, y, z, po.scale ?? 1);
 };
 /** goose card (same 600 x 1000 canvas as the people: soles at y), side view facing screen-right unless mirrored */
 const goose = (out: Stage, cam: CamInfo, t: number, x: number, y: number, z: number, o: GooseOpts, mirror = false, shadow = true, scale = 1) => {
   const d = cam.pos.distanceTo(tmp.set(x, y + 0.6, z)) / scale, [w, h, k] = tier(d * 1.4);
   const g: GooseOpts = { blink: lidAt(t, 91) ? 1 : 0, ...o, light: light2D(cam, mirror) };
-  out.places.push({ key: `G|${fkey(g)}`, x, y, z, mirror, scale, size: [w, h, k], draw: (p) => gooseDraw(p, g) });
+  const breathe = o.mode === "sit" || o.mode === "stand" || o.mode === undefined ? 1 + 0.015 * Math.sin(2 * Math.PI * 0.45 * t) : 1;
+  out.places.push({ key: `G|${fkey(g)}`, x, y, z, mirror, scale, sy: breathe, size: [w, h, k], draw: (p) => gooseDraw(p, g) });
   if (shadow) blob(out, x, y, z, 0.8 * scale);
 };
 /** eel rising out of the water at (x, z); its canvas waterline sits on the water surface */
@@ -294,7 +312,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     // ---- the birthday party ----
     case 4: case 5: case 6: case 7: case 8: case 9: {
       const jump = id >= 6 ? Math.sin(Math.PI * clamp01((t - EV.bite - 0.04) / 0.8)) * 1.1 : 0;
-      const edwinExpr = ex(t, [[0, "grin"], [4.63, "laugh"], [EV.bite, "shock"], [7.11, "pained"], [7.72, "stern"]]);
+      const edwinExpr = ex(t, [[0, "grin"], [4.63, "laugh"], [EV.bite, "shock"], [7.11, "pained"], [7.72, "stern"], [EV.never, "stern"], [8.78, "stern"]]);
       if (id === 6) {
         E(EDWIN, "e", 0, jump, 6, {}, { side: true, mirror: false, so: { mode: "stand", expr: edwinExpr }, shadow: false });
         blob(out, 0, 0, 6, 1, 1 - 0.6 * jump);

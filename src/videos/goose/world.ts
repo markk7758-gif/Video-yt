@@ -456,7 +456,7 @@ export class World {
       a.mesh.visible = true;
       a.mesh.position.set(p.x, p.y, p.z);
       a.mesh.rotation.set(0, p.yaw ?? Math.atan2(cam.position.x - p.x, cam.position.z - p.z), p.roll ?? 0);
-      a.mesh.scale.set(p.mirror ? -sc2 * (p.sx ?? 1) : sc2 * (p.sx ?? 1), sc2, sc2);
+      a.mesh.scale.set(p.mirror ? -sc2 * (p.sx ?? 1) : sc2 * (p.sx ?? 1), sc2 * (p.sy ?? 1), sc2);
       a.mesh.castShadow = L.actorShadow;
     }
     for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = false;
