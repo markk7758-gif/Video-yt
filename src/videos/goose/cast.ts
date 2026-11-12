@@ -368,9 +368,9 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     // ---- weeks in the hall ----
     case 26: {
       E(EDWIN, "e", H, 0, -1.2, { mode: "stand", expr: ex(t, [[0, "grin"], [34.64, "smile_closed"]]), prop: "bread" });
-      E(GUARD, "gd", H - 1.9, 0, -1.1, { mode: "stand", expr: "grin", look: 1 }, { i: 31 });
-      E(GUARD, "gd2", H + 1.9, 0, -1.1, { mode: "stand", expr: "smile", look: -1 }, { i: 32 });
-      E(CHEF, "c", H + 3.7, 0, -0.2, { mode: "stand", expr: "smile", facing: -1 });
+      E(GUARD, "gd", H - 1.0, 0, -1.5, { mode: "stand", expr: "grin", look: 1 }, { i: 31 });
+      E(GUARD, "gd2", H + 1.1, 0, -1.5, { mode: "stand", expr: "smile", look: -1 }, { i: 32 });
+      E(CHEF, "c", H + 1.9, 0, -2.0, { mode: "stand", expr: "smile", facing: -1 });
       break;
     }
     case 27: E({ ...EDWIN, build: "adult" }, "ea", H, 0, -1.2, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.boot, "pained"]]), prop: "bowl" }); break;
