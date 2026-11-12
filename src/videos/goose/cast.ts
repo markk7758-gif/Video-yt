@@ -318,7 +318,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     // ---- walls pop up, moats fill ----
     case 10: puffs(out, t, EV.wall1 - 0.05, [[0, 0.5, W1 + 1.5], [-W1 - 1.5, 0.5, 4], [W1 + 1.5, 0.5, 4], [-8, 0.5, W1 + 1.5], [8, 0.5, W1 + 1.5], [W1 + 1.5, 0.5, -8]], 5); break;
     case 11: puffs(out, t, EV.wall2 - 0.05, [[0, 0.5, W2 + 1.8], [-W2 - 1.8, 0.5, 6], [W2 + 1.8, 0.5, 6], [-12, 0.5, W2 + 1.8], [12, 0.5, W2 + 1.8], [W2 + 1.8, 0.5, -10], [-W2 - 1.8, 0.5, -10]], 7); break;
-    case 12: splash(out, t, EV.moat1 - 0.1, 7.5, (M1[0] + M1[1]) / 2, 5); splash(out, t, EV.moat1, 2, (M1[0] + M1[1]) / 2, 4); break;
+    case 12: splash(out, t, EV.moat1 - 0.1, 7.5, (M1[0] + M1[1]) / 2, 3); splash(out, t, EV.moat1, 3, (M1[0] + M1[1]) / 2, 2.6); break;
     case 13: for (const [x, z] of [[0, 36.5], [-20, 36.5], [20, 36.5], [36.5, 0], [-36.5, -10]] as const) splash(out, t, EV.moat2 - 0.1, x, z, 9); break;
     case 14: {
       [[2.6, 36.8], [4.9, 37.6], [7.1, 36.4]].forEach(([x, z], i) =>
