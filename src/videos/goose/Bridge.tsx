@@ -65,7 +65,7 @@ const Inner: React.FC<{ id: number; kit: Kit; out: React.RefObject<HTMLCanvasEle
     grade: new GradeEffect(GRADES.day, GRADE_STRENGTH.day),
     grain: new GrainEffect({ amount: 0.025, cellPx: 1.5 }), // film grain, OFF by default (inputProps post.grain): the reference measures no grain and it quadruples the file size
   }), [camera, scene]);
-  useEffect(() => () => fx.ink.dispose(), [fx]);
+  useEffect(() => () => (fx.ink as unknown as { dispose?: () => void }).dispose?.(), [fx]);
   // After the composer has drawn (priority 1), copy the WebGL frame into a plain 2D canvas: with software GL the page
   // screenshot of a WebGL canvas costs ~15 s a frame, a 2D canvas is captured in milliseconds.
   useFrame(() => {
