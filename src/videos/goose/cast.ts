@@ -327,8 +327,8 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
       break;
     }
     case 15: {
-      E(EDWIN, "e", 8.4, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [17.03, "smile_closed"]]), facing: 1 });
-      E(GUARD, "gd", 10.4, wall, WALL2_WALK, { mode: "stand", expr: "neutral" }, { i: 31 });
+      E(EDWIN, "e", 8.6, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [17.03, "smile_closed"]]), facing: 1 });
+      E(GUARD, "gd", 10.4, wall, WALL2_WALK - 0.3, { mode: "stand", expr: "neutral" }, { i: 31 });
       break;
     }
     case 16: {
