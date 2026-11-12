@@ -340,12 +340,12 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     }
     case 17: puffs(out, t, EV.bridgeShut, [[0, 3.5, 25.5], [-2.4, 1, 25.4], [2.4, 1, 25.4]], 3, 0.6); break;
     case 18: {
-      E(EDWIN, "e", 1.0, 0, 9.0, { mode: "stand", expr: ex(t, [[0, "smile"], [EV.melt, "grin"]]), facing: 1 });
-      E(GUARD, "gd", 5.1, 0, 9.2, { mode: "stand", expr: "neutral", facing: -1 }, { i: 31 });
-      out.fx.push({ key: `fire${q(t * 3 % 1, 12)}`, cw: 300, ch: 400, draw: (p) => fxFire(p, q(t * 3 % 1, 12)), x: 3.2, y: 0.42, z: 9.75, w: 1.6, h: 0.8 });
-      if (t < EV.melt) { const k = clamp01((t - 20.33) / (EV.melt - 20.33)); out.fx.push({ key: "chain", cw: 400, ch: 300, draw: fxChain, x: 3.3, y: 3.3 - 1.7 * k * k, z: 9.6, w: 0.9, h: 0.68, rot: 0.4 * k }); }
-      burst(out, t, EV.melt, 3.2, 1.7, 9.8, 1.4, "#ffb347", 0.3);
-      puffs(out, t, EV.melt + 0.1, [[3.2, 2.0, 9.6]], 1.6, 1.0);
+      E(EDWIN, "e", 0.9, 0, 10.2, { mode: "stand", expr: ex(t, [[0, "smile"], [EV.melt, "grin"]]), facing: 1 });
+      E(GUARD, "gd", 4.7, 0, 10.0, { mode: "stand", expr: "neutral", facing: -1 }, { i: 31 });
+      out.fx.push({ key: `fire${q(t * 3 % 1, 12)}`, cw: 300, ch: 400, draw: (p) => fxFire(p, q(t * 3 % 1, 12)), x: 3.2, y: 0.32, z: 9.75, w: 1.2, h: 0.6 });
+      if (t < EV.melt) { const k = clamp01((t - 20.33) / (EV.melt - 20.33)); out.fx.push({ key: "chain", cw: 400, ch: 300, draw: fxChain, x: 3.25, y: 2.8 - 1.6 * k * k, z: 9.6, w: 0.9, h: 0.68, rot: 0.4 * k }); }
+      burst(out, t, EV.melt, 3.2, 1.3, 9.8, 1.2, "#ffb347", 0.3);
+      puffs(out, t, EV.melt + 0.1, [[3.2, 1.6, 9.6]], 1.4, 1.0);
       break;
     }
     case 20: case 21: {

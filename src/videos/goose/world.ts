@@ -295,10 +295,11 @@ export class World {
     // the cauldron where the chains are melted (shot 18)
     const cb = new Batch();
     const pot = new THREE.CylinderGeometry(1.0, 0.75, 1.1, 24, 1, true).translate(0, 1.0, 0);
-    cb.add(pot, M.iron); cb.add(new THREE.TorusGeometry(1.0, 0.09, 8, 24).rotateX(Math.PI / 2).translate(0, 1.55, 0), M.iron);
+    const potM = twoTone(new THREE.MeshPhongMaterial({ color: "#5d6270", specular: "#a0a4ac", shininess: 40, side: THREE.DoubleSide }), 0.2);
+    cb.add(pot, potM); cb.add(new THREE.TorusGeometry(1.0, 0.09, 8, 24).rotateX(Math.PI / 2).translate(0, 1.55, 0), potM);
     cb.add(new THREE.CylinderGeometry(0.98, 0.98, 0.05, 24).translate(0, 1.45, 0), lam("molten", () => ({ color: "#ff9a3a", emissive: new THREE.Color("#ff7a1a") })));
     for (const a of [0, 2.1, 4.2]) cb.add(boxGeo(V(-0.07, 0, -0.07), V(0.07, 0.6, 0.07)).translate(0.7 * Math.cos(a), 0, 0.7 * Math.sin(a)), M.iron);
-    cb.build(this.cauldron); this.cauldron.position.set(3.2, 0, 9.6); C.add(this.cauldron);
+    cb.build(this.cauldron); this.cauldron.position.set(3.2, 0, 9.6); this.cauldron.scale.setScalar(0.75); C.add(this.cauldron);
 
     // ---- outside: trees (kept out of every sight line), hills, the goose's horizon hill ----
     setSight(sightLines());
