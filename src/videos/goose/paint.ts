@@ -15,7 +15,7 @@ export const ctex = (key: string, w: number, h: number, draw: (g: CanvasRenderin
     draw(cv.getContext("2d")!, rng(key.length * 131 + key.charCodeAt(0)));
     t = new THREE.CanvasTexture(cv);
     t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 8;
+    t.anisotropy = 1;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     cache.set(key, t);
   }
