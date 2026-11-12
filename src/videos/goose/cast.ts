@@ -394,18 +394,18 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     case 27: E({ ...EDWIN, build: "adult" }, "ea", H, 0, -1.2, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.boot, "pained"]]), prop: "bowl" }); break;
     // ---- the chef fishes; the eels fish back ----
     case 28: {
-      E(CHEF, "c", 12, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [38.46, "neutral"]]), prop: "rod", facing: 1 });
+      E(CHEF, "c", 14.3, wall, WALL2_WALK, { mode: "stand", expr: ex(t, [[0, "smile"], [38.46, "neutral"]]), prop: "rod", facing: 1 });
       if (t >= 38.46) {
-        out.fx.push({ key: "bobber", cw: 120, ch: 120, draw: bobber, x: 12.6, y: WATER_Y + 0.12 + 0.03 * Math.sin(t * 5), z: 27.4, w: 0.18, h: 0.18 });
-        eel(out, cam, 12.0, 28.2, { t: t * 0.5, rise: 0.45, expr: "grin" }, true, 0.8);
+        out.fx.push({ key: "bobber", cw: 120, ch: 120, draw: bobber, x: 14.9, y: WATER_Y + 0.12 + 0.03 * Math.sin(t * 5), z: 27.4, w: 0.18, h: 0.18 });
+        eel(out, cam, 14.3, 28.2, { t: t * 0.5, rise: 0.45, expr: "grin" }, true, 0.8);
       }
       break;
     }
-    case 29: eel(out, cam, 12.4, 27.8, { t: t * 0.5, expr: "grin", rod: q(smooth((t - 40.4) / 0.5), 20), rise: 0.95 }, false, 0.85); break;
+    case 29: eel(out, cam, 14.7, 27.8, { t: t * 0.5, expr: "grin", rod: q(smooth((t - 40.4) / 0.5), 20), rise: 0.95 }, false, 0.85); break;
     case 30: {
       const yank = smooth((t - EV.back) / 0.25);
-      E(CHEF, "c", 12, wall, WALL2_WALK + 0.4 * yank, { mode: "stand", expr: "shock", prop: "rod", facing: 1, tilt: 24 * yank });
-      burst(out, t, EV.back, 12.9, wall + 1.1, WALL2_WALK + 0.6, 1.0, "#ffffff", 0.3);
+      E(CHEF, "c", 14.3, wall, WALL2_WALK + 0.4 * yank, { mode: "stand", expr: "shock", prop: "rod", facing: 1, tilt: 24 * yank });
+      burst(out, t, EV.back, 15.2, wall + 1.1, WALL2_WALK + 0.6, 1.0, "#ffffff", 0.3);
       break;
     }
     // ---- week six: one goose on the horizon ----
