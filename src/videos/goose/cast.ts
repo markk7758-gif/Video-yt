@@ -387,7 +387,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     case 30: {
       const yank = smooth((t - EV.back) / 0.25);
       E(CHEF, "c", 12, wall, WALL2_WALK + 0.4 * yank, { mode: "stand", expr: "shock", prop: "rod", facing: 1, tilt: 24 * yank });
-      burst(out, t, EV.back, 12.4, wall + 1.6, WALL2_WALK + 0.6, 1.2, "#ffffff", 0.3);
+      burst(out, t, EV.back, 12.9, wall + 1.1, WALL2_WALK + 0.6, 1.0, "#ffffff", 0.3);
       break;
     }
     // ---- week six: one goose on the horizon ----

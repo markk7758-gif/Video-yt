@@ -306,7 +306,7 @@ export class World {
     const tb = new Batch(), r = rng(7);
     for (let i = 0; i < 150; i++) {
       const a = r() * Math.PI * 2, d = 46 + r() * 110, x = Math.cos(a) * d, z = Math.sin(a) * d;
-      if (Math.abs(x) < 8 && z > 0 && z < 175) continue; // keep the road to the horizon hill clear
+      if (x > -24 && x < 10 && z > 0 && z < 175) continue; // keep the road to the horizon hill clear
       prop(tb, {}, r() < 0.55 ? "tree_cone" : "tree_oak", x, 0, z, 6 + r() * 5, r() * 6);
     }
     for (let i = 0; i < 22; i++) {
