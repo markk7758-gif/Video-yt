@@ -210,7 +210,7 @@ export class World {
     C.add(this.groundDay, this.groundWinter);
     // moat lids (grass before the moats are dug), water and ice
     for (const [k, [r0, r1]] of [[0, M1], [1, M2]] as const) {
-      const lb = new Batch(); for (const g of ring(r0, r1, 0.01)) lb.add(g, M.grass); lb.build(this.lids[k], false);
+      const lb = new Batch(); for (const g of ring(r0, r1, 0)) lb.add(g, M.grass); // flush with the ground: a 1 cm step drew ink lines lb.build(this.lids[k], false);
       const ib = new Batch(); for (const g of ring(r0, r1, WATER_Y + 0.05, 6)) ib.add(g, M.ice); ib.build(this.ices[k], false);
       C.add(this.lids[k], this.waters[k], this.ices[k]);
     }

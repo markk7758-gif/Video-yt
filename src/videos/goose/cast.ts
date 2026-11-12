@@ -303,7 +303,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
       } else {
         const rub = id === 8 && t < 7.72 ? "rub" : null;
         E(EDWIN, "e", 0, id === 7 ? 0.35 + 0.5 * clamp01((t - 6.55) / 0.5) : 0, 6, { mode: "stand", expr: edwinExpr, prop: rub, wave: id === 4 && t > 4.6 ? q(Math.sin(t * 8), 20) : undefined, facing: id >= 8 ? 1 : 0 });
-        if (id === 7) out.fx.push({ key: `stars${q((t * 1.4) % 1, 30)}`, cw: 420, ch: 210, draw: (p) => fxStars(p, q((t * 1.4) % 1, 30)), x: 0, y: 2.9 + 0.5 * clamp01((t - 6.55) / 0.5), z: 6, w: 1.0, h: 0.5 });
+        if (id === 7) out.fx.push({ key: `stars${q((t * 1.4) % 1, 30)}`, cw: 420, ch: 210, draw: (p) => fxStars(p, q((t * 1.4) % 1, 30)), x: 0, y: 2.55 + 0.5 * clamp01((t - 6.55) / 0.5), z: 6, w: 1.0, h: 0.5 });
       }
       if (id === 4 || id === 6) {
         const guests: [number, number, number][] = [[-2.6, 4.6, 0], [2.4, 5.0, 1], [-1.5, 3.2, 2], [3.6, 3.4, 3]];
