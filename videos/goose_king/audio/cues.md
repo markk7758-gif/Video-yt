@@ -1,6 +1,6 @@
 # Goose King sound cues
 
-Mix: -14.3 LUFS integrated, true peak -0.7 dBTP, 62.4 s, 48 kHz.
+Mix: -14.9 LUFS integrated, true peak -1.3 dBTP, 62.4 s, 48 kHz.
 
 ## Music
 
