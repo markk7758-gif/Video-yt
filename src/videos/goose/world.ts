@@ -244,7 +244,7 @@ export class World {
       kb.add(new THREE.CylinderGeometry(2.2, 2.3, 18, 20).translate(x, 9, z), M.stone);
       kb.add(new THREE.ConeGeometry(2.8, 5.2, 20).translate(x, 20.6, z), M.roofR);
     }
-    kb.add(boxGeo(V(-1.6, 0, -4.05), V(1.6, 3.6, -3.9)), M.dark); // door
+    kb.add(boxGeo(V(-1.6, 0, -4.05), V(1.6, 3.6, -3.85), 1.2), M.wood); // door
     for (const x of [-3.5, 3.5]) for (const y of [5, 9.5]) kb.add(boxGeo(V(x - 0.4, y, -3.98), V(x + 0.4, y + 1.6, -3.9)), M.dark);
     kb.build(C);
     const ks = new Batch();

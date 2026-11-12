@@ -287,8 +287,8 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     case 3: {
       const k = clamp01((t - (EV.goose1 - 0.3)) / 0.3);
       goose(out, cam, t, H, SEAT, -10.2, { mode: "sit", crown: t >= EV.goose1, squash: t >= EV.goose1 && t < EV.goose1 + 0.12 ? 0.25 : 0 });
-      if (t < EV.goose1) out.fx.push({ key: "crownFx", cw: 300, ch: 300, draw: crownFx, x: H + 0.08, y: SEAT + 1.55 + 1.6 * (1 - k * k), z: -10.15, w: 0.42, h: 0.42, rot: 0.3 * (1 - k) });
-      burst(out, t, EV.goose1, H + 0.1, SEAT + 1.3, -10.0, 1.1, "#ffe07a");
+      if (t < EV.goose1) out.fx.push({ key: "crownFx", cw: 300, ch: 300, draw: crownFx, x: H + 0.08, y: SEAT + 1.15 + 0.9 * (1 - k * k), z: -10.15, w: 0.42, h: 0.42, rot: 0.3 * (1 - k) });
+      burst(out, t, EV.goose1, H + 0.1, SEAT + 1.0, -10.0, 1.1, "#ffe07a");
       break;
     }
     // ---- the birthday party ----
@@ -431,7 +431,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     case 40: {
       E(EDWIN_THIN, "et", H + 1.15, DAIS, -8.6, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.crown, "pained"]]), prop: t < EV.crown ? "crown" : null, facing: -1, look: -1 });
       goose(out, cam, t, H, SEAT, -10.2, { mode: "sit", crown: t >= EV.crown });
-      burst(out, t, EV.crown, H + 0.1, SEAT + 1.3, -10.0, 1.0, "#ffe07a");
+      burst(out, t, EV.crown, H + 0.1, SEAT + 1.0, -10.0, 1.0, "#ffe07a");
       break;
     }
     case 41: snow(out, cam, t, 110, 3, 40); break;
