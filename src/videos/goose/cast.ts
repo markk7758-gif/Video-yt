@@ -438,7 +438,7 @@ export const stage = (id: number, t: number, B: Build, cam: CamInfo, light: Ligh
     case 42: case 43: {
       const honk = id === 43 ? Math.min(1, (t - EV.honk) / 0.08) : 0;
       goose(out, cam, t, H, SEAT, -10.2, { mode: "sit", crown: true, honk, squash: id === 43 && t < EV.honk + 0.12 ? -0.15 : 0, blink: id === 43 ? 0 : undefined });
-      burst(out, t, EV.honk, H + 0.55, SEAT + 1.05, -10.0, 1.4, "#ffffff", 0.4);
+      burst(out, t, EV.honk, H + 0.55, SEAT + 0.68, -10.0, 0.9, "#ffffff", 0.4);
       break;
     }
   }
