@@ -353,7 +353,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     }
     case 12: snow(out, cam, t, 50, 0.8, 8, 3); break;
     case 14: {
-      for (const [x, v, i] of [[-1.6, 1, 12], [0, 0, 2], [1.7, 2, 13]] as const) {
+      for (const [x, v, i] of [[-0.95, 1, 12], [0, 0, 2], [0.95, 2, 13]] as const) {
         hansPeek({ expr: "whistle", look: 0 }, x, v, i);
         notes(out, t, x, STEP + 1.75, GSTEPZ - 0.1, i, "#f4f0e6", i % 2 ? 1 : -1);
       }
