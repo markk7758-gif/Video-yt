@@ -5,10 +5,10 @@
 // Cards, effects and blobs live on the NOINK layer so the world ink pass never outlines their quads.
 import * as THREE from "three";
 import {
-  Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxPuff, fxFire, fxSnow, fxNote, TOMMY, FRITZ, BRIT_GENERAL, GER_GENERAL, POPE,
-  Outfit, Expr, FrontOpts, SideOpts,
+  Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxPuff, fxFire, fxNote, FRITZ, DOUGHBOY, MAJOR, FRENCH_GENERAL, SCIENTIST, HISTORIAN, HANDLER,
+  pigeonDraw, PigeonOpts, fxNotePaper, fxDNA, fxMale, fxFemaleX, fxQuestion, Outfit, Expr, FrontOpts, SideOpts,
 } from "./toon";
-import { FPS, V3, smooth, clamp01, EV, GZ, FLOOR, STEP, HQ, TREE_Z, climbK, ballAt } from "./story";
+import { FPS, V3, smooth, clamp01, EV, GERZ, GUN, LOFT, HQ, PIG, flight1, flight2, heroFly } from "./story";
 import { LightName } from "./lights";
 import { NOINK } from "./ink";
 import { cardShade, blobMaterial, CARD_K } from "./cardshade";
@@ -270,16 +270,6 @@ const notes = (out: Stage, t: number, x: number, y: number, z: number, seed: num
       w: 0.17 * pop, h: 0.2 * pop, rot: 0.3 * Math.sin(age * 6 + n) });
   }
 };
-/** falling snow: soft flakes in a box in front of the camera, deterministic per index */
-const snow = (out: Stage, cam: CamInfo, t: number, n = 90, near = 2, far = 26, fall0 = 6) => {
-  const fw = tmp.set(cam.right.z, 0, -cam.right.x).normalize();
-  for (let i = 0; i < n; i++) {
-    const d = near + (far - near) * hh(i, 1), sx = (hh(i, 2) - 0.5) * d * 1.1, fall = (t * (0.5 + 0.3 * hh(i, 3)) + hh(i, 4) * 12) % 12;
-    const x = cam.pos.x + fw.x * d + cam.right.x * sx + 0.3 * Math.sin(t * 1.1 + i), z = cam.pos.z + fw.z * d + cam.right.z * sx;
-    const s = 0.04 + 0.03 * hh(i, 5) + d * 0.004;
-    out.fx.push({ key: "snow", cw: 64, ch: 64, draw: fxSnow, x, y: cam.pos.y + fall0 - fall, z, w: s, h: s, soft: true });
-  }
-};
 const ball = (p: Pen) => { p.ell(60, 60, 50, 50, "#8a5a34", 8); p.stroke([[20, 40], [100, 80]], 5); p.stroke([[60, 12], [60, 108]], 5); };
 const boom = (out: Stage, t: number, t0: number, x: number, z: number, size = 5) => {
   if (t < t0 || t > t0 + 1.2) return;
@@ -288,9 +278,28 @@ const boom = (out: Stage, t: number, t0: number, x: number, z: number, size = 5)
   if (u < 0.5) { const uq = q(u * 2 % 1, 12); out.fx.push({ key: `fire${uq}`, cw: 300, ch: 400, draw: (p) => fxFire(p, uq), x, y: size * 0.18, z, w: size * 0.5, h: size * 0.45 * (1 - u) }); }
   puffs(out, t, t0 + 0.08, [[x, 0.4, z], [x - size * 0.2, 0.2, z + 0.4]], size * 0.7, 1.1);
 };
-const H = HQ[0];
-const T = (v: number) => TOMMY(v), G = (v: number) => FRITZ(v);
-const STEPZ = 0.55, GSTEPZ = GZ - 0.55;
+
+/** a pigeon card: side view facing screen-right unless mirrored; scale PIG makes it ~0.4 m tall */
+const pigeon = (out: Stage, cam: CamInfo, t: number, x: number, y: number, z: number, o: PigeonOpts, mirror = false, shadow = true, i = 90, scale = PIG) => {
+  const d = cam.pos.distanceTo(tmp.set(x, y + 0.3, z)) / scale, [w, h, k] = tier(d * 1.2);
+  const g: PigeonOpts = { blink: lidAt(t, i) >= 1 ? 1 : 0, ...o, phase: o.phase !== undefined ? q(o.phase, 12) : undefined, light: light2D(cam, mirror) };
+  out.places.push({ key: `P|${fkey(g)}`, x, y, z, mirror, scale, size: [w, h, k], draw: (p) => pigeonDraw(p, g) });
+  if (shadow) blob(out, x, y, z, 0.35);
+};
+const fx = (out: Stage, key: string, cw: number, ch: number, draw: (p: Pen) => void, x: number, y: number, z: number, w: number, h: number, rot = 0, soft = false) =>
+  out.fx.push({ key, cw, ch, draw, x, y, z, w, h, rot, soft });
+/** wicker carrying basket with n pigeon heads peeking out, on a 500 x 360 canvas */
+const basket = (n: number) => (p: Pen) => {
+  for (let i = 0; i < n; i++) { const x = 130 + i * 120; p.ell(x, 120, 52, 48, "#a9b0bd", 8); p.ell(x + 22, 108, 10, 10, "#f39a2b", 4); p.dot(x + 23, 109, 5); p.poly([[x + 46, 116], [x + 76, 124], [x + 46, 130]], "#3a3438", 5); }
+  p.poly([[40, 150], [460, 150], [430, 340], [70, 340]], "#c9a26a", 10);
+  for (let y = 180; y < 340; y += 34) p.stroke([[50, y], [450, y]], 6, "#9a7a4c");
+  for (let x = 90; x < 440; x += 50) p.stroke([[x, 155], [x - 8, 335]], 6, "#9a7a4c");
+  p.poly([[30, 135], [470, 135], [470, 160], [30, 160]], "#b5864a", 9);
+};
+/** bullet / tracer streak on a 400 x 60 canvas */
+const tracer = (p: Pen) => { p.poly([[10, 30], [360, 20], [390, 30], [360, 40]], "#ffe07a", 6); };
+const pocketMen: [number, number, number, Expr][] = [[-1.3, 1.8, 0, "nervous"], [-2.6, 0.6, 1, "neutral"], [2.0, 2.4, 2, "nervous"], [-0.4, 3.6, 3, "neutral"],
+  [2.9, 0.4, 1, "stern"], [-3.4, 3.0, 2, "nervous"], [1.0, 4.4, 0, "neutral"], [-1.8, -0.8, 3, "stern"], [3.6, 3.4, 2, "neutral"], [-4.2, 1.2, 0, "nervous"]];
 
 /** everything with a face (and every 2D effect) in shot `id` at time t */
 export const stage = (id: number, t: number, cam: CamInfo, light: LightName): Stage => {
@@ -298,174 +307,143 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
   LNAME = light;
   findSun(cam, SUN);
   const E = (o: Outfit, k: string, x: number, y: number, z: number, fo: FrontOpts, po?: PersonOpts) => human(out, cam, t, o, k, x, y, z, fo, po);
-  const tommyPeek = (fo: FrontOpts, po?: PersonOpts) => E(T(0), "tommy", 0, STEP, STEPZ, { mode: "stand", ...fo }, { i: 1, ...po });
-  const hansPeek = (fo: FrontOpts, x = 0, v = 0, i = 2) => E(G(v), `hans${v}`, x, STEP, GSTEPZ, { mode: "stand", ...fo }, { i });
+  const men = (exprAt: (e: Expr, i: number) => Expr = (e) => e, n = 10) => pocketMen.slice(0, n).forEach(([x, z, v, e], i) =>
+    E(DOUGHBOY(v), `d${v}`, x, 0, z, { mode: "stand", expr: exprAt(e, i), look: i % 3 - 1 }, { i: 20 + i }));
+  const major = (fo: FrontOpts) => E(MAJOR, "major", 0.5, 0, 1.0, { mode: "stand", ...fo }, { i: 5 });
+  const LX = LOFT[0], LZ = LOFT[2], H = HQ[0], GX = GUN[0];
+  const onBoard: V3 = [LX - 0.05, 2.2, LZ + 1.35];
   switch (id) {
-    case 1: {
-      E(T(0), "tommy", -1.5, FLOOR, 0.15, { mode: "stand", expr: "nervous", prop: "mug" }, { i: 1 });
-      E(T(1), "t1", -4.2, FLOOR, -0.1, { mode: "stand", expr: "neutral" }, { i: 3 });
-      breath(out, t, -1.5, FLOOR + 1.62, 0.15, 1, -1);
-      snow(out, cam, t, 60, 1.5, 14, 4);
+    case 1: case 2: case 4: {
+      const expr = id === 4 ? "squint" : "proud";
+      pigeon(out, cam, t, onBoard[0], onBoard[1], onBoard[2], { mode: "stand", expr, eyeX: true, leg: 2, bandage: true, medal: true, squash: id === 4 && t < EV.maybe + 0.12 ? 0.15 : 0 }, true, false);
       break;
     }
-    case 2: snow(out, cam, t, 50, 2, 26); break;
-    case 3: case 13: {
-      hansPeek({ expr: "whistle", look: -1 });
-      notes(out, t, 0, STEP + 1.75, GSTEPZ - 0.1, 2, "#f4f0e6", -1);
-      snow(out, cam, t, 40, 1, 8, 3);
-      break;
-    }
-    case 4: {
-      for (const [x, v] of [[-3, 1], [0.4, 0], [2.6, 2], [5.6, 3]] as const) E(T(v), v ? `t${v}` : "tommy", x, FLOOR, 0.1, { mode: "stand", expr: v ? "neutral" : "nervous", prop: v === 0 ? "mug" : null }, { i: 3 + v });
-      snow(out, cam, t, 50, 2, 16, 4);
-      for (const [x, v] of [[-4, 1], [6, 2]] as const) E(G(v), `g${v}`, x, FLOOR, GZ - 0.1, { mode: "stand", expr: "neutral" }, { i: 10 + v });
-      break;
-    }
-    case 5: {
-      E(T(0), "tommy", -0.6, FLOOR, 0.15, { mode: "stand", expr: ex(t, [[0, "nervous"], [6.75, "pained"]]), prop: "mug" }, { i: 1 });
-      E(T(2), "t2", -2.9, FLOOR, -0.05, { mode: "stand", expr: "neutral" }, { i: 5 });
-      breath(out, t, -0.6, FLOOR + 1.62, 0.15, 1, -1);
-      snow(out, cam, t, 40, 1, 10, 3);
-      break;
-    }
-    case 6: {
-      hansPeek({ expr: "neutral" }, 0.6, 0, 2);
-      hansPeek({ expr: "neutral" }, -5.5, 1, 12);
-      break;
-    }
-    case 7: {
-      hansPeek({ expr: ex(t, [[0, "neutral"], [EV.cough, "pained"]]), look: -1 });
-      if (t >= EV.cough - 0.05) puffs(out, t, EV.cough - 0.05, [[0.25, STEP + 1.42, GSTEPZ - 0.55]], 0.22, 0.6);
-      break;
-    }
-    case 8: E(POPE, "pope", H, 0, -0.6, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.begged, "relief"], [11.6, "nervous"]]), prop: "pray" }, { i: 7 }); break;
-    case 9: {
-      const shake = t > EV.no - 0.1 ? Math.sin((t - EV.no) * 24) * 7 * Math.max(0, 1 - (t - EV.no) / 0.5) : 0;
-      E(BRIT_GENERAL, "bg", H - 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.no, "stern"]]), headTilt: shake, facing: 1 }, { i: 8 });
-      E(GER_GENERAL, "gg", H + 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.no, "stern"]]), headTilt: -shake, facing: -1 }, { i: 9 });
-      break;
-    }
-    case 10: tommyPeek({ expr: ex(t, [[0, "neutral"], [14.92, "shock"]]) }); snow(out, cam, t, 40, 1, 10, 3); break;
+    case 3: men((e) => "grin"); major({ expr: "smile" }); break;
+    case 6: men(); major({ expr: "nervous" }); break;
+    case 7: for (const [x, v, i] of [[-2.2, 0, 60], [0.2, 2, 61], [2.6, 1, 62], [-4.5, 1, 63], [4.8, 0, 64]] as const) E(FRITZ(v), `g${v}`, x, 0, GERZ + (i % 2) * 0.8, { mode: "stand", expr: "stern" }, { i }); break;
+    case 8: major({ expr: "pained", headTilt: Math.sin(t * 9) * 6 }); men(undefined, 3); break;
+    case 9: men(); major({ expr: "nervous" }); break;
+    case 10: major({ expr: "shock" }); break;
     case 11: {
-      hansPeek({ expr: "neutral" }, -6, 1, 12); hansPeek({ expr: "neutral" }, 5.4, 2, 13);
-      snow(out, cam, t, 60, 2, 30);
+      for (const [x, z, v] of [[GX - 1.2, 1.2, 1], [GX + 0.2, 1.6, 3]] as const) E(DOUGHBOY(v), `d${v}`, x, 0, z, { mode: "stand", expr: t > EV.artillery ? "grin" : "stern" }, { i: 40 + v });
+      burst(out, t, EV.artillery, GX + 2.9, 2.3, GUN[2], 1.6, "#ffd27a", 0.25);
+      puffs(out, t, EV.artillery + 0.05, [[GX + 3.1, 2.2, GUN[2]]], 1.6, 0.9);
       break;
     }
-    case 12: snow(out, cam, t, 50, 0.8, 8, 3); break;
-    case 14: {
-      for (const [x, v, i] of [[-0.95, 1, 12], [0, 0, 2], [0.95, 2, 13]] as const) {
-        hansPeek({ expr: "whistle", look: 0 }, x, v, i);
-        notes(out, t, x, STEP + 1.75, GSTEPZ - 0.1, i, "#f4f0e6", i % 2 ? 1 : -1);
+    case 12: {
+      men((e, i) => (t > EV.shelling - 0.07 ? (i % 2 ? "shock" : "nervous") : e));
+      major({ expr: t > EV.shelling - 0.07 ? "shock" : "nervous" });
+      boom(out, t, EV.shelling, -3, -4, 4); boom(out, t, 16.95, 4, -2, 3.5); boom(out, t, 17.4, 1.5, 7, 3.5);
+      break;
+    }
+    case 13: major({ expr: ex(t, [[0, "pained"], [18.36, "grin"]]) }); men(undefined, 4); break;
+    case 14: case 18: {
+      const n = id === 14 ? 3 : 1;
+      fx(out, `basket${n}`, 500, 360, basket(n), 1.1, 0.3, 1.4, 0.8, 0.58);
+      break;
+    }
+    case 15: case 16: {
+      const p = flight1(t);
+      if (id === 16 && t < EV.shoot1) {
+        E(FRITZ(0), "g0", 0.4, 0, GERZ - 0.3, { mode: "stand", expr: "stern", tilt: t > EV.shoot1 - 0.15 ? -6 : 0 }, { i: 60 });
+        burst(out, t, EV.shoot1 - 0.12, 0.85, 1.55, GERZ - 0.6, 0.5, "#ffd27a", 0.2);
+      } else if (t < 22.31) {
+        const falling = t > EV.shoot1;
+        pigeon(out, cam, t, p[0], Math.max(0.05, p[1]), p[2], { mode: falling ? "fall" : "fly", phase: (t * 3.2) % 1, expr: falling ? "shock" : "neutral", tilt: falling ? 40 : 0 }, false, false, 91);
+        if (id === 16) { burst(out, t, EV.shoot1, p[0], p[1] + 0.1, p[2], 0.6, "#ffffff", 0.25); for (let k = 0; k < 4; k++) if (falling && t - EV.shoot1 < 0.6) fx(out, "feather", 120, 120, feather, p[0] + 0.3 * Math.sin(k * 2 + t * 3), p[1] + 0.2 + 0.4 * (t - EV.shoot1) * k, p[2], 0.12, 0.12, t * 2 + k); }
       }
-      snow(out, cam, t, 50, 1.5, 12, 3);
-      break;
-    }
-    case 15: tommyPeek({ expr: ex(t, [[0, "neutral"], [EV.know, "smile_closed"]]) }); snow(out, cam, t, 40, 0.8, 6, 2); break;
-    case 16: {
-      tommyPeek({ expr: "whistle" });
-      for (const [x, v, i] of [[-1.7, 1, 3], [1.9, 2, 5], [-3.6, 3, 6]] as const) E(T(v), `t${v}`, x, STEP, STEPZ, { mode: "stand", expr: "whistle" }, { i });
-      for (const [x, i] of [[0, 1], [-1.7, 3], [1.9, 5]] as const) notes(out, t, x, STEP + 1.75, STEPZ + 0.1, i, "#ffe9a8", 1);
-      snow(out, cam, t, 50, 1.5, 14, 4);
+      if (id === 15) men(undefined, 4);
       break;
     }
     case 17: {
-      const k = climbK(t);
-      E(G(0), "hans0", 0, STEP + (0 - STEP) * k + 0.75 * Math.sin(Math.PI * k), GSTEPZ - 1.9 * k, { mode: "stand", expr: "nervous" }, { i: 2, shadow: k > 0.95 });
-      hansPeek({ expr: "nervous" }, -1.7, 1, 12);
+      const p = flight2(t), falling = t > EV.shoot2;
+      pigeon(out, cam, t, p[0], Math.max(0.05, p[1]), p[2], { mode: falling ? "fall" : "fly", phase: (t * 3.2) % 1, expr: falling ? "shock" : "neutral", tilt: falling ? -40 : 0 }, true, false, 92);
+      burst(out, t, EV.shoot2, p[0], p[1] + 0.1, p[2], 0.6, "#ffffff", 0.25);
+      fx(out, "tracer", 400, 60, tracer, p[0] + 1.5 - 6 * clamp01((t - (EV.shoot2 - 0.2)) / 0.25), p[1], p[2] - 0.2, 0.9, 0.12, -0.2);
       break;
     }
-    case 18: E(G(0), "hans0", 0, 0, GZ - 2.45, { mode: "stand", expr: "nervous", prop: "hand" }, { i: 2, popAt: 26.2 }); break;
-    case 19: E(G(0), "hans0", 0, 0, GZ - 2.45, { mode: "stand", expr: "smile", wave: q(Math.sin(t * 9), 20) }, { i: 2, popAt: EV.waves }); break;
+    case 19: pigeon(out, cam, t, 0.95, 0.66, 1.45, { mode: "stand", expr: "proud", squash: t < EV.name + 0.12 && t > EV.name - 0.05 ? -0.12 : 0 }, true, true, 93); break;
     case 20: {
-      tommyPeek({ expr: "shock" }, { popAt: 27.87 });
-      for (const [x, v, i] of [[-1.7, 1, 3], [1.9, 2, 5]] as const) E(T(v), `t${v}`, x, STEP, STEPZ, { mode: "stand", expr: "nervous" }, { i });
+      major({ expr: "stern", prop: "hand", facing: -1 });
+      pigeon(out, cam, t, 0.95, 0.66, 1.45, { mode: "stand", expr: "proud", canister: t > EV.note }, true, true, 93);
       break;
     }
-    case 21: {
-      for (let i = 0; i < 64; i++) {
-        const brit = i % 2 === 0, x = (hh(i, 31) - 0.5) * (30 + 30 * hh(i, 33)), z = 7 + hh(i, 32) * 17;
-        const ex2: Expr = (["smile", "grin", "laugh", "smile_closed"] as Expr[])[i % 4];
-        E(brit ? T(i % 4) : G(i % 3), `${brit ? "t" : "g"}${i % 4}`, x, 0, z, { mode: "stand", expr: ex2, prop: i % 5 === 0 ? "hand" : null, wave: i % 7 === 3 ? q(Math.sin(t * 8 + i), 20) : undefined, facing: i % 2 ? -1 : 1 }, { i: 40 + i, flip: !brit && i % 3 === 0 });
-      }
+    case 21: fx(out, "notepaper", 400, 260, fxNotePaper, 0.9, 1.25, 1.42, 0.62, 0.4, -0.05 + 0.02 * Math.sin(t * 2)); break;
+    case 22: case 23: case 24: {
+      const p = heroFly(t), hit = t > EV.shot, down = t > EV.falls - 0.3 && t < 32.9;
+      pigeon(out, cam, t, p[0], p[1], p[2], { mode: down ? "fall" : "fly", phase: (t * (hit ? 4.2 : 3.2)) % 1, expr: hit ? (t > 33.3 ? "proud" : "pained") : "neutral", canister: true, leg: hit ? 1 : 0, eyeX: hit, bandage: false, tilt: down ? 30 : 0 }, false, false, 93);
+      burst(out, t, EV.shot, p[0], p[1] + 0.1, p[2], 0.7, "#ffffff", 0.3);
+      if (id === 23 && t > EV.falls) puffs(out, t, EV.falls + 0.1, [[p[0], 0.3, p[2]]], 0.6, 0.6);
       break;
     }
-    case 22: case 23: case 24: case 25: {
-      const tp = id === 22 ? "hand" : id === 24 ? "choc" : id === 25 ? "button" : null;
-      const hp = id === 22 ? "hand" : id === 23 ? "cig" : id === 25 ? "button" : null;
-      const pop = [EV.shaking, EV.cigs, EV.choc, EV.buttons][id - 22];
-      E(T(0), "tommy", 0.33, 0, 15.0, { mode: "stand", expr: id === 23 ? "grin" : "smile", prop: tp, facing: 1 }, { i: 1, popAt: pop });
-      E(G(0), "hans0", -0.33, 0, 15.0, { mode: "stand", expr: id === 24 ? "grin" : "smile", prop: hp, facing: 1 }, { i: 2, flip: true, popAt: pop });
-      break;
-    }
+    case 25: E(DOUGHBOY(0), "d0", -1.3, 0, 1.8, { mode: "stand", expr: "shock" }, { i: 20, popAt: EV.wait }); break;
     case 26: {
-      for (const [x, z, brit, v, i] of [[9.4, 18.2, true, 0, 1], [10.6, 18.4, false, 0, 2], [11.8, 18.3, true, 2, 5], [13.0, 18.4, false, 1, 12], [8.2, 18.4, false, 2, 13]] as const)
-        E(brit ? T(v) : G(v), brit ? (v ? `t${v}` : "tommy") : `hans${v}`, x, 0, z, { mode: "stand", expr: "neutral", blink: 1, headTilt: 8 }, { i });
+      const u = (t - 35.27) / 2.06;
+      pigeon(out, cam, t, -8 + 5 * u, 6.5 + 1.5 * u, 0 + 4 * u, { mode: "fly", phase: (t * 3.4) % 1, leg: 1, eyeX: true, canister: true, expr: "pained" }, false, false, 93);
+      if (t > EV.home - 0.1) fx(out, "question", 200, 300, fxQuestion, -8 + 5 * u + 0.4, 7.4 + 1.5 * u, 4 * u, 0.5, 0.75);
       break;
     }
     case 27: {
-      const b = ballAt(t);
-      const kick = (who: number) => { const k = (t - 38.52) / 0.55, i = Math.floor(k); return (i % 2 === who) && k - i < 0.15; };
-      E(T(0), "tommy", -7.25, 0, 15.0, { mode: "stand", expr: "laugh", tilt: kick(0) ? -8 : 0, facing: 1 }, { i: 1 });
-      E(G(0), "hans0", -8.75, 0, 15.0, { mode: "stand", expr: "laugh", tilt: kick(1) ? -8 : 0, facing: 1 }, { i: 2, flip: true });
-      for (const [x, z, brit, v, i] of [[-11.5, 17.5, false, 1, 12], [-8.0, 18.2, true, 2, 5], [-5.0, 17.4, false, 2, 13], [-12.6, 16.2, true, 3, 6]] as const)
-        E(brit ? T(v) : G(v), brit ? `t${v}` : `hans${v}`, x, 0, z, { mode: "stand", expr: "grin", wave: q(Math.sin(t * 8 + i), 20) }, { i });
-      out.fx.push({ key: "ball", cw: 120, ch: 120, draw: ball, x: b[0], y: b[1], z: b[2], w: 0.24, h: 0.24, rot: t * 9 });
+      for (const [dx, k] of [[-0.8, 0], [0.8, 1]] as const) pigeon(out, cam, t, LX + dx, 2.2, LZ + 1.35, { mode: "stand", expr: "neutral" }, k === 1, false, 95 + k);
+      const u = clamp01((t - 37.4) / 2.0);
+      pigeon(out, cam, t, LX + 6 - 6 * u, 2.25 + 2.5 * (1 - u) ** 2, LZ + 1.35 + 3 * (1 - u), { mode: u < 1 ? "fly" : "stand", phase: (t * 3.4) % 1 }, true, false, 97);
       break;
     }
-    case 28: tommyPeek({ expr: "shock", look: 0 }, { popAt: EV.wait }); break;
+    case 28: {
+      const u = clamp01((t - 40.0) / 1.4);
+      E(HISTORIAN(1), "h1", H + 1.6 - 1.7 * u, 0, -1.2, { mode: "stand", expr: "smile_closed", blink: 1 }, { i: 70 });
+      break;
+    }
     case 29: {
-      const u = (t - 41.3) / 1.8;
-      out.fx.push({ key: "noteBig", cw: 220, ch: 260, draw: (p) => fxNote(p, 1, "#ffe9a8"), x: -2.2 + 4.4 * u, y: 2.3 + 0.25 * Math.sin(u * 7), z: 14.2, w: 1.1, h: 1.3, rot: 0.25 * Math.sin(u * 6) });
+      const x = -14 + 9 * (t - 41.65) + 0.4;
+      pigeon(out, cam, t, x, 7.2, 0, { mode: "fly", phase: (t * 3.6) % 1, leg: 1, eyeX: true, canister: true, expr: "proud" }, false, false, 93);
+      for (let k = 0; k < 5; k++) { const s2 = (t * 2.2 + k * 0.37) % 1; fx(out, "tracer", 400, 60, tracer, x + 3 - 7 * s2, 7.2 + (k - 2) * 0.35, -0.3 + 0.1 * k, 0.8, 0.1, 0.05 * (k - 2)); }
       break;
     }
-    case 30: E(T(0), "tommy", 0, FLOOR, 0.15, { mode: "stand", expr: "neutral", prop: "mug" }, { i: 1 }); breath(out, t, 0, FLOOR + 1.62, 0.15, 1, -1); break;
-    case 31: E(G(0), "hans0", 0, FLOOR, GZ - 0.15, { mode: "stand", expr: "neutral", prop: "mug" }, { i: 2, flip: true }); breath(out, t, 0, FLOOR + 1.62, GZ - 0.15, 2, 1); break;
-    case 32: {
-      const jit = 0.012 * Math.sin(t * 60);
-      E(T(0), "tommy", jit, FLOOR, 0.15, { mode: "stand", expr: "pained", prop: "mug" }, { i: 1, popAt: 45.7 });
-      breath(out, t, 0, FLOOR + 1.62, 0.15, 7, -1); snow(out, cam, t, 30, 0.6, 4, 2);
+    case 30: {
+      const u = clamp01((t - 43.9) / 1.4), land = t > EV.lands;
+      pigeon(out, cam, t, LX - 0.05 + 2.4 * (1 - u), 2.2 + 1.6 * (1 - u) ** 2, LZ + 1.35 + 0.8 * (1 - u), { mode: land ? "stand" : "fly", phase: (t * 3.4) % 1, leg: 1, eyeX: true, canister: true, expr: "pained", bandage: land, squash: land && t < EV.lands + 0.12 ? 0.2 : 0 }, true, false, 93);
+      E(HANDLER, "handler", LX + 1.25, 0, LZ + 1.4, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.lands, "shock"]]), facing: -1 }, { i: 71 });
+      puffs(out, t, EV.lands, [[LX, 2.25, LZ + 1.4]], 0.35, 0.5);
       break;
     }
-    case 33: E(G(0), "hans0", 0, FLOOR, GZ - 0.15, { mode: "stand", expr: "nervous", look: 1 }, { i: 2, flip: true, popAt: 46.34 }); break;
-    case 34: E(T(0), "tommy", 0, FLOOR, 0.15, { mode: "stand", expr: "nervous", prop: "photo", look: 1 }, { i: 1, popAt: 46.98 }); break;
-    case 35: {
-      E(T(0), "tommy", 0.4, 0, 15.0, { mode: "stand", expr: "whistle", facing: 1 }, { i: 1 });
-      E(G(0), "hans0", -0.4, 0, 15.0, { mode: "stand", expr: "whistle", facing: 1 }, { i: 2, flip: true });
-      notes(out, t, 0.4, 1.8, 14.95, 1, "#ffe9a8", 1);
-      notes(out, t, -0.4, 1.8, 14.95, 2, "#f4f0e6", -1);
-      snow(out, cam, t, 50, 1, 10, 3);
+    case 31: pigeon(out, cam, t, onBoard[0], onBoard[1], onBoard[2], { mode: "stand", expr: "pained", eyeX: true, leg: 1, bandage: true, canister: true }, true, false); break;
+    case 32: for (const [x, z, v] of [[GX - 1.2, 1.2, 1], [GX + 0.2, 1.6, 3]] as const) E(DOUGHBOY(v), `d${v}`, x, 0, z, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.gunsStop, "relief"]]), prop: x > GX ? "photo" : null }, { i: 40 + v }); break;
+    case 33: {
+      const u = (t - 49.9) * 0.8;
+      pocketMen.forEach(([x, z, v], i) => E(DOUGHBOY(v), `d${v}`, x + 0.3 * u, 0, z + 1.4 * u, { mode: "stroll", phase: q((t * 1.1 + i * 0.13) % 1, 30), expr: (["grin", "laugh", "relief_open", "smile_closed"] as Expr[])[i % 4], wave: i % 3 === 0 ? q(Math.sin(t * 8 + i), 20) : undefined }, { i: 20 + i }));
+      major({ expr: "relief" });
       break;
     }
-    case 36: tommyPeek({ expr: ex(t, [[0, "neutral"], [51.54, "smile_closed"]]) }); break;
-    case 37: {
-      E(BRIT_GENERAL, "bg", H - 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "stern"], [EV.hated, "shock"]]), prop: "fist", facing: 1 }, { i: 8 });
-      E(GER_GENERAL, "gg", H + 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "stern"], [EV.hated, "shock"]]), facing: -1 }, { i: 9 });
+    case 34: {
+      E(FRENCH_GENERAL, "fg", LX + 0.9, 0, LZ + 2.6, { mode: "stand", expr: "smile", prop: t < EV.medal ? "button" : null, facing: -1 }, { i: 72, popAt: EV.medal });
+      pigeon(out, cam, t, LX - 0.35, 1.0, LZ + 2.6, { mode: "stand", expr: "proud", eyeX: true, leg: 1, bandage: true, medal: t > EV.medal }, false, false);
+      fx(out, "crate", 200, 200, (p: Pen) => { p.poly([[10, 10], [190, 10], [190, 190], [10, 190]], "#a8724a", 8); p.stroke([[10, 10], [190, 190]], 8, "#7a4f33"); }, LX - 0.35, 0.5, LZ + 2.62, 0.5, 0.5 * 2);
+      burst(out, t, EV.medal, LX - 0.3, 1.25, LZ + 2.7, 0.5, "#ffe07a");
+      break;
+    }
+    case 35: pigeon(out, cam, t, onBoard[0], onBoard[1], onBoard[2], { mode: "stand", expr: "smug", eyeX: true, leg: t > EV.leg - 0.07 ? 2 : 1, bandage: true, medal: true, squash: t > EV.leg - 0.07 && t < EV.leg + 0.08 ? -0.15 : 0 }, true, false); break;
+    case 36: case 37: {
+      const arg = t > EV.arguing - 0.07;
+      E(HISTORIAN(0), "h0", H - 0.6, 0, -0.9, { mode: "stand", expr: arg ? "stern" : "neutral", prop: arg ? "fist" : null, facing: 1 }, { i: 73 });
+      E(HISTORIAN(1), "h1", H + 0.6, 0, -0.9, { mode: "stand", expr: arg ? "shock" : "neutral", wave: arg ? q(Math.sin(t * 10), 20) : undefined, facing: -1 }, { i: 74, flip: true });
       break;
     }
     case 38: {
-      const k = t < EV.banned - 0.25 ? 0 : t < EV.banned ? smooth((t - (EV.banned - 0.25)) / 0.25) : 1;
-      E(GER_GENERAL, "gg", H + 0.6, 0, -0.9, { mode: "stand", expr: "stern", prop: ["stamp", q(k, 20)], facing: -1 }, { i: 9, popAt: EV.banned });
-      E(BRIT_GENERAL, "bg", H - 0.7, 0, -0.9, { mode: "stand", expr: ex(t, [[0, "stern"], [EV.banned, "grin"]]), facing: 1 }, { i: 8 });
-      burst(out, t, EV.banned, H + 0.25, 1.05, -1.6, 0.8, "#ffffff", 0.25);
+      E(SCIENTIST, "sci", H + 0.4, 0, -1.0, { mode: "stand", expr: "grin", facing: -1 }, { i: 75 });
+      pigeon(out, cam, t, H - 0.6, 1.0, -1.9, { mode: "stand", expr: "neutral", eyeX: true, leg: 2, medal: true }, true, false);
       break;
     }
-    case 39: {
-      E(T(0), "tommy", 0, STEP, STEPZ, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.firing, "shock"]]), tilt: t > EV.firing ? -6 : 0 }, { i: 1 });
-      boom(out, t, EV.firing, -2.5, 12, 6); boom(out, t, 56.2, 4, 18, 7); boom(out, t, 56.45, -7, 22, 6);
-      snow(out, cam, t, 40, 1, 12, 3);
-      break;
-    }
-    case 40: {
-      for (const [x, v] of [[-6, 1], [-2.5, 2], [1.5, 3], [5, 1]] as const) E(T(v), `t${v}`, x, FLOOR, 0.1, { mode: "stand", expr: "neutral" }, { i: 3 + v });
-      for (const [x, v] of [[-4, 1], [0, 0], [4.5, 2]] as const) E(G(v), `hans${v}`, x, FLOOR, GZ - 0.1, { mode: "stand", expr: "neutral" }, { i: 10 + v });
-      break;
-    }
-    case 41: {
-      E(T(0), "tommy", 3.1, 0, TREE_Z - 1.9, { mode: "stand", expr: "smile_closed", facing: 1 }, { i: 1 });
-      E(G(0), "hans0", 1.9, 0, TREE_Z - 1.9, { mode: "stand", expr: "smile_closed", facing: 1 }, { i: 2, flip: true });
-      snow(out, cam, t, 70, 1, 16, 4);
+    case 39: fx(out, `dna${q((t * 0.5) % 1, 20)}`, 300, 600, (p: Pen) => fxDNA(p, q((t * 0.5) % 1, 20)), H - 0.6, 1.5, -1.0, 0.45, 0.9); break;
+    case 40: case 41: {
+      const boy = id === 41 && t > EV.boy - 0.07;
+      pigeon(out, cam, t, H - 0.6, 1.0, -1.3, { mode: "stand", expr: boy ? "smug" : "neutral", eyeX: true, leg: 2, medal: true, bow: !boy, squash: boy && t < EV.boy + 0.15 ? -0.15 : 0 }, true, false);
+      if (!boy) fx(out, "female", 300, 360, fxFemaleX, H - 0.95, 1.6, -1.25, 0.28, 0.34);
+      else { fx(out, "male", 300, 300, fxMale, H - 0.95, 1.6, -1.25, 0.3, 0.3); burst(out, t, EV.boy, H - 0.6, 1.45, -1.25, 0.6, "#bfe0ff"); }
+      if (id === 41 && t > EV.boy && t < EV.boy + 0.5) fx(out, "bowfly", 200, 120, (p: Pen) => { p.poly([[100, 60], [20, 20], [20, 100]], "#f28fb5", 6); p.poly([[100, 60], [180, 20], [180, 100]], "#f28fb5", 6); }, H - 0.5 - (t - EV.boy), 1.45 + 1.2 * (t - EV.boy), -1.25, 0.15, 0.09, t * 8);
       break;
     }
   }
   return out;
 };
+const feather = (p: Pen) => { p.ell(60, 60, 18, 46, "#c3c9d4", 5, 0, 360, 30); p.stroke([[40, 100], [80, 20]], 4); };

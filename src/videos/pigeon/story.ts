@@ -1,9 +1,9 @@
-// "The Christmas Truce": timeline of the shots, timed to the voice word onsets
-// (videos/christmas_truce/audio/words.json), the places, and the camera grammar of the template: hard cuts on big
+// "Cher Ami": timeline of the shots, timed to the voice word onsets
+// (videos/cher_ami/audio/words.json), the places, and the camera grammar of the template: hard cuts on big
 // jumps, smootherstep glides, every hold creeps in, flip-sign impact kicks over 7 f, small rolls on punch words.
 import { LightName } from "./lights";
 export const FPS = 30;
-export const VOICE_END = 62.62;
+export const VOICE_END = 65.08;
 export const TOTAL = Math.round(VOICE_END * FPS);
 export const D0 = 0; // ground level (build.ts helpers read it)
 export type V3 = [number, number, number];
@@ -13,40 +13,39 @@ export const smooth = (x: number) => { const u = clamp01(x); return u * u * (3 -
 export const easeOut = (u: number) => 1 - (1 - clamp01(u)) ** 4;
 
 // ---------------- places ----------------
-/** British trench along x at z 0, German trench at z GZ; floor depth, fire-step height, parapets toward the enemy */
-export const GZ = 30, TW = 1.0, FLOOR = -1.75, STEP = -0.72, PARA = 0.7;
+/** the pocket (the trapped men) at the origin; the German line in the trees at z 16; our gun; the loft; the room */
+export const GERZ = 16;
+export const GUN: V3 = [-60, 0, 0];
+export const LOFT: V3 = [60, 0, 0];
 export const HQ: V3 = [300, 0, 0];
-/** candle trees on the German parapet: x positions (they light one by one from the centre outward) */
-export const TREES = [-24, -16, -9, -3.5, 2.5, 8, 14, 21, 28];
-export const TREE_Z = GZ - TW - 0.55;
-export const lightOn = (x: number) => EV.lights + 0.12 * Math.abs(x) / 3.5; // lights pop on from the middle out
+export const PIG = 0.5; // pigeon card scale (the 600 x 1000 canvas is 2.16 m tall)
 
 // ---------------- story events (seconds, voice timeline) ----------------
 export const EV = {
-  singing: 3.13, cough: 9.52, begged: 10.48, no: 13.32, lights: 15.19, silent: 20.0, know: 21.21, singsBack: 22.75,
-  climbs: 25.16, waves: 27.03, shaking: 31.57, cigs: 33.23, choc: 33.88, buttons: 34.8, bury: 36.36, football: 40.26,
-  wait: 40.8, same: 45.14, hard: 50.29, hated: 52.92, banned: 53.72, firing: 55.82, stopped: 61.3,
+  maybe: 5.19, surrounded: 10.92, worse: 14.68, artillery: 15.67, shelling: 16.5, pigeons: 18.94, first: 20.3, shoot1: 21.6,
+  second: 22.5, shoot2: 23.25, left: 25.16, name: 26.42, note: 28.33, heaven: 28.64, shot: 30.26, falls: 31.89, up: 33.42,
+  wait: 34.82, home: 36.85, loft: 39.46, bed: 40.76, bullets: 43.24, lands: 45.31, blind: 45.99, gunsStop: 48.89, alive: 51.5,
+  medal: 53.23, leg: 54.85, historians: 55.54, arguing: 56.85, prove: 60.48, girl: 63.1, boy: 63.97,
 };
+/** artillery flashes that light the pocket */
+export const FLASHES = [16.5, 16.95, 17.4, 15.7];
 
 // ---------------- shots ----------------
 export type Loc = "front" | "hq";
 export type ShotDef = { id: number; a: number; b: number; light: LightName; loc: Loc; tau: (t: number) => number };
 const fr = (t: number) => Math.round(t * FPS);
 /** cut times (s): shot k runs CUTS[k-1] .. CUTS[k] */
-const CUTS = [0, 1.34, 2.59, 3.98, 5.69, 7.68, 9.4, 10.04, 12.71, 13.76, 15.19, 16.8, 18.9, 20.0, 21.03, 22.13, 23.63, 25.99,
-  26.67, 27.52, 28.55, 31.57, 32.64, 33.88, 34.53, 36.13, 38.52, 40.8, 41.3, 43.09, 44.3, 45.7, 46.34, 46.98, 47.78, 50.06,
-  52.33, 53.48, 54.81, 56.63, 58.48, VOICE_END];
-const NIGHT = [1, 2, 3, 10, 11, 12, 13, 14, 15, 16, 35, 39, 41];
-const HALL = [8, 9, 37, 38];
+const CUTS = [0, 1.83, 3.0, 5.19, 5.78, 7.9, 10.92, 12.37, 13.25, 14.17, 15.23, 16.23, 17.19, 18.94, 19.69, 20.99, 22.31, 24.11,
+  25.69, 27.3, 28.64, 30.05, 31.69, 32.52, 34.82, 35.27, 37.33, 39.97, 41.65, 43.84, 45.99, 48.7, 49.9, 52.12, 53.7, 55.34,
+  56.38, 58.46, 60.25, 61.51, 63.59, VOICE_END];
+export const BED = [28], DESK = [36, 37], LAB = [38, 39, 40, 41];
 export const SHOTS: ShotDef[] = CUTS.slice(0, -1).map((c, i) => {
-  const id = i + 1;
-  return { id, a: fr(c), b: fr(CUTS[i + 1]), light: HALL.includes(id) ? "hall" : NIGHT.includes(id) ? "night" : "winter",
-    loc: HALL.includes(id) ? "hq" : "front", tau: (t: number) => t };
+  const id = i + 1, room = BED.includes(id) || DESK.includes(id) || LAB.includes(id);
+  return { id, a: fr(c), b: fr(CUTS[i + 1]), light: id === 28 ? "night" : room ? "hall" : "day", loc: room ? "hq" : "front", tau: (t: number) => t };
 });
 SHOTS[SHOTS.length - 1].b = TOTAL;
-/** crossfades (frames) at place/time changes; a white 4-frame flash after the hook */
-export const XFADE: Record<number, number> = { 17: 10, 41: 12 };
-export const FLASH_AT = fr(3.98);
+export const XFADE: Record<number, number> = { 5: 8, 27: 8 };
+export const FLASH_AT = fr(5.78);
 
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
 export const layersAt = (f: number): { id: number; alpha: number }[] => {
@@ -96,74 +95,74 @@ const C = (t0: number, t1: number, a: Shot, b: Shot) => (f: number): Shot => {
   const u = glide((f / FPS - t0) / (t1 - t0)), A = full(a), B = full(b), m = mixCam(A, B, u);
   return m;
 };
-const H = HQ[0];
-/** the German who climbs out (shot 16): 0 in the trench .. 1 standing on the parapet ground */
-export const climbK = (t: number) => smooth((t - (EV.climbs - 0.6)) / 1.1);
-/** football (shot 26): ball between Tommy (x -9.2) and Hans (x -6.8), kicked every 0.55 s */
-export const ballAt = (t: number): V3 => {
-  const k = (t - 38.52) / 0.55, i = Math.floor(k), u = k - i, from = i % 2 ? -8.5 : -7.5, to = i % 2 ? -7.5 : -8.5;
-  return [from + (to - from) * u, 0.12 + 0.9 * Math.sin(Math.PI * u), 15.0 + 0.3 * Math.sin(i * 1.7)];
+const H = HQ[0], LX = LOFT[0], LZ = LOFT[2], GX = GUN[0];
+/** flight paths (world positions over time) for the flying pigeon shots */
+export const flight1 = (t: number): V3 => { const u = (t - 19.95) / 1.2; return [0.9 + 2.2 * u, 1.1 + 3.4 * u - (t > EV.shoot1 ? 9 * (t - EV.shoot1) ** 2 : 0), 1.4 + 2.5 * u]; };
+export const flight2 = (t: number): V3 => { const u = (t - 22.35) / 1.2; return [0.4 - 2.0 * u, 1.3 + 3.0 * u - (t > EV.shoot2 ? 9 * (t - EV.shoot2) ** 2 : 0), 1.6 + 2.6 * u]; };
+export const heroFly = (t: number): V3 => { // shots 22-24: takes off, hit, falls, recovers, climbs away
+  const u = t - 30.05;
+  if (t < EV.shot) return [0.8 + 1.8 * u, 1.2 + 2.6 * u, 1.6 + 1.0 * u];
+  const p0: V3 = [0.8 + 1.8 * 0.21, 1.2 + 2.6 * 0.21, 1.6 + 0.21];
+  if (t < 32.9) { const v = t - EV.shot; return [p0[0] + 0.6 * v, Math.max(0.35, p0[1] + 1.0 * v - 2.2 * v * v), p0[2] + 0.5 * v]; }
+  const w = t - 32.9; return [p0[0] + 1.6 + 2.4 * w, 0.35 + 1.4 * w * w + 0.9 * w, p0[2] + 1.3 + 1.6 * w];
 };
 
 const CAMS: Record<number, Key[]> = {
-  // hook, Christmas Eve: down the British trench, Tommy in the foreground
-  1: [{ f: 0, s: D(0, [1.4, -0.2, -0.35], [-1.5, -0.55, 0.3], { fov: 46, roll: 0.03 }, 0.003) }],
-  2: [{ f: at(1.34), s: Z(1.34, [0.3, 1.25, 2.6], [0, 0.75, TREE_Z], 30, {}, 0.004) }],
-  3: [{ f: at(2.59), s: D(2.59, [0.9, 1.05, GZ - 3.0], [0.1, 0.84, GZ - 0.6], { fov: 36, roll: -0.04 }, 0.003, 0.008, 18) }],
-  // December 1914: the two lines from above, then down in the mud
-  4: [{ f: at(3.98), s: C(3.98, 5.69, { pos: [6.5, 5.5, -4.2], look: [1.0, -1.0, 0.1], fov: 46 }, { pos: [5.0, 3.6, -3.4], look: [1.0, -1.0, 0.1], fov: 44 }) }],
-  5: [{ f: at(5.69), s: D(5.69, [1.9, -0.25, -0.35], [-0.6, -0.55, 0.15], { fov: 46 }, 0.003) }],
-  6: [{ f: at(7.68), s: Z(7.68, [0.5, 1.2, -0.4], [0.3, 0.75, GZ], 9, {}, 0.002) }],
-  7: [{ f: at(9.4), s: D(9.4, [0.6, 1.1, GZ - 3.2], [-0.1, 0.84, GZ - 0.6], { fov: 36, roll: 0.04 }, 0.004) }],
-  // the Pope pleads, the generals refuse
-  8: [{ f: at(10.04), s: D(10.04, [H + 0.35, 1.7, 2.4], [H, 1.35, -0.6], { fov: 40 }, 0.003) }],
-  9: [{ f: at(12.71), s: D(12.71, [H + 0.1, 1.6, 3.9], [H, 1.3, -0.5], { fov: 42, roll: -0.03 }, 0.003, 0.008, 18) }],
-  // that night: lights appear
-  10: [{ f: at(13.76), s: D(13.76, [0.4, 1.02, 3.2], [0.0, 0.82, 0.6], { fov: 36 }, 0.003) }],
-  11: [{ f: at(15.19), s: Z(15.19, [0.4, 1.1, 1.2], [0.3, 0.9, TREE_Z], 36, {}, 0.0025) }],
-  12: [{ f: at(16.8), s: D(16.8, [3.5, 0.95, TREE_Z - 2.6], [2.5, 0.85, TREE_Z], { fov: 38 }, 0.003) }],
-  13: [{ f: at(18.9), s: D(18.9, [0.6, 1.05, GZ - 2.8], [0.1, 0.84, GZ - 0.6], { fov: 36 }, 0.003) }],
-  14: [{ f: at(20.0), s: D(20.0, [0.2, 1.15, GZ - 4.8], [0, 0.82, GZ - 0.6], { fov: 46 }, 0.003) }],
-  15: [{ f: at(21.03), s: D(21.03, [0.15, 0.98, 2.6], [0, 0.82, 0.6], { fov: 34, roll: 0.03 }, 0.004, 0.009, 16) }],
-  16: [{ f: at(22.13), s: C(22.13, 23.63, { pos: [0.6, 1.1, 4.0], look: [0, 0.7, 0.6], fov: 44 }, { pos: [0.8, 3.2, 6.5], look: [0, 0.6, 0.6], fov: 46 }) }],
-  // next morning
-  17: [{ f: at(23.63) - 5, s: D(23.63, [0.9, 0.85, GZ - 7.5], [0.0, 0.85, GZ - 1.3], { fov: 38 }, 0.0025) }],
-  18: [{ f: at(25.99), s: D(25.99, [0.3, 1.3, GZ - 5.6], [0, 1.2, GZ - 2.45], { fov: 38 }, 0.004, 0.01, 14) }],
-  19: [{ f: at(26.67), s: D(26.67, [0.9, 1.3, GZ - 5.2], [0.0, 1.0, GZ - 1.6], { fov: 40, roll: -0.03 }, 0.003) }],
-  20: [{ f: at(27.52), s: D(27.52, [0.5, 1.05, 3.4], [-0.2, 0.82, 0.6], { fov: 44 }, 0.002) }],
-  // no man's land
-  21: [{ f: at(28.55), s: C(28.55, 31.57, { pos: [7, 2.0, 7.5], look: [0, 1.0, 14], fov: 46 }, { pos: [9, 5.5, 4.5], look: [0, 0.6, 15], fov: 48 }) }],
-  22: [{ f: at(31.57), s: D(31.57, [0.1, 1.3, 10.6], [0, 1.15, 15.0], { fov: 36, roll: 0.03 }, 0.004) }],
-  23: [{ f: at(32.64), s: D(32.64, [-0.5, 1.35, 10.8], [-0.1, 1.2, 15.0], { fov: 36 }, 0.003) }],
-  24: [{ f: at(33.88), s: D(33.88, [0.6, 1.35, 10.8], [0.1, 1.2, 15.0], { fov: 36, roll: -0.03 }, 0.004) }],
-  25: [{ f: at(34.53), s: D(34.53, [0.05, 1.25, 11.4], [0, 1.15, 15.0], { fov: 34 }, 0.004, 0.008, 16) }],
-  26: [{ f: at(36.13), s: D(36.13, [10.8, 1.5, 10.4], [10.8, 0.9, 17.0], { fov: 46 }, 0.0018) }],
-  27: [{ f: at(38.52), s: D(38.52, [-8.0, 1.3, 9.6], [-8.0, 0.6, 15.0], { fov: 42 }, 0.002) }],
-  // the question and the answer
-  28: [{ f: at(40.8), s: D(40.8, [0.1, 0.95, 2.0], [0, 0.84, 0.6], { fov: 32, roll: 0.06 }, 0.004, 0.03, 8) }],
-  29: [{ f: at(41.3), s: C(41.3, 43.09, { pos: [-3, 2.4, 9.5], look: [-1, 2.2, 15], fov: 46 }, { pos: [3, 2.6, 9.5], look: [1, 2.3, 15], fov: 46 }) }],
-  30: [{ f: at(43.09), s: D(43.09, [0.9, -0.15, -0.75], [0, -0.45, 0.2], { fov: 50 }, 0.003) }],
-  31: [{ f: at(44.3), s: D(44.3, [-0.9, -0.15, GZ + 0.75], [0, -0.45, GZ - 0.2], { fov: 50 }, 0.003) }],
-  32: [{ f: at(45.7), s: D(45.7, [0.25, -0.2, -0.85], [0, -0.35, 0.2], { fov: 46 }, 0.004) }],
-  33: [{ f: at(46.34), s: D(46.34, [-0.25, -0.2, GZ + 0.85], [0, -0.35, GZ - 0.2], { fov: 46 }, 0.004) }],
-  34: [{ f: at(46.98), s: D(46.98, [0.3, -0.2, -0.85], [0, -0.4, 0.2], { fov: 46 }, 0.004) }],
-  35: [{ f: at(47.78), s: D(47.78, [0.1, 1.4, 10.8], [0, 1.2, 15.0], { fov: 38 }, 0.0025) }],
-  36: [{ f: at(50.06), s: D(50.06, [0.6, 1.02, 3.4], [0, 0.82, 0.6], { fov: 36 }, 0.0025) }],
-  // the generals
-  37: [{ f: at(52.33), s: D(52.33, [H + 0.4, 1.75, 4.2], [H, 1.5, -2.5], { fov: 40 }, 0.003, 0.008, 18) }],
-  38: [{ f: at(53.48), s: D(53.48, [H + 1.2, 2.2, 1.6], [H + 0.2, 1.0, -1.6], { fov: 38, roll: -0.04 }, 0.003) }],
-  39: [{ f: at(54.81), s: D(54.81, [1.1, 1.75, -2.6], [0, 0.95, 5], { fov: 48, roll: 0.04 }, 0.003) }],
-  // four more years, and the one night
-  40: [{ f: at(56.63), s: C(56.63, 58.48, { pos: [-6.5, 5.8, -4.4], look: [-0.5, -1.0, 0.1], fov: 46 }, { pos: [-8.5, 7.5, -5.5], look: [-0.5, -1.0, 0.6], fov: 46 }) }],
-  41: [{ f: at(58.48), s: (f) => {
-    const u = glide((f / FPS - 58.48) / (VOICE_END - 58.48));
-    return dolly([2.5 + 6 * u, 1.2 + 9 * u, TREE_Z - 4.2 - 10 * u], [2.5, 1.0 + 0.2 * u, TREE_Z - 1.0], 1, { fov: 40 + 6 * u });
-  } }],
+  // hook: the hero, injured, proud
+  1: [{ f: 0, s: D(0, [LX + 0.55, 2.55, LZ + 3.2], [LX + 0.05, 2.45, LZ + 1.35], { fov: 34, roll: -0.03 }, 0.004) }],
+  2: [{ f: at(1.83), s: D(1.83, [LX + 0.35, 2.48, LZ + 2.4], [LX - 0.05, 2.42, LZ + 1.35], { fov: 32, roll: 0.03 }, 0.004, 0.009, 16) }],
+  3: [{ f: at(3.0), s: C(3.0, 5.19, { pos: [3, 2.4, 9.5], look: [0, 1.0, 2], fov: 46 }, { pos: [5, 4.5, 11], look: [0, 0.6, 2], fov: 48 }) }],
+  4: [{ f: at(5.19), s: D(5.19, [LX + 0.3, 2.5, LZ + 2.2], [LX - 0.05, 2.42, LZ + 1.35], { fov: 30, roll: 0.06 }, 0.004, 0.02, 10) }],
+  // October 1918: the forest, the pocket, the Germans
+  5: [{ f: at(5.78) - 4, s: C(5.78, 7.9, { pos: [30, 34, -30], look: [0, 0, 4], fov: 46 }, { pos: [22, 24, -22], look: [0, 0, 3], fov: 44 }) }],
+  6: [{ f: at(7.9), s: C(7.9, 10.92, { pos: [-4, 6, -7], look: [0, 0.6, 2.5], fov: 48 }, { pos: [-3, 3.2, -5], look: [0, 0.9, 2], fov: 46 }) }],
+  7: [{ f: at(10.92), s: D(10.92, [1.5, 1.6, GERZ - 6], [0, 1.4, GERZ], { fov: 40 }, 0.003) }],
+  8: [{ f: at(12.37), s: D(12.37, [0.75, 1.75, 4.3], [0.5, 1.65, 1.0], { fov: 36, roll: 0.03 }, 0.004) }],
+  9: [{ f: at(13.25), s: Z(13.25, [0, 18, -12], [0, 0, 2.5], 40, {}, 0.003) }],
+  10: [{ f: at(14.17), s: D(14.17, [0.6, 1.7, 3.5], [0.5, 1.65, 1.0], { fov: 34, roll: -0.04 }, 0.004, 0.012, 14) }],
+  // their own artillery
+  11: [{ f: at(15.23), s: D(15.23, [GX + 3.5, 1.6, 8.5], [GX + 0.6, 1.2, 0.8], { fov: 46, roll: 0.03 }, 0.003) }],
+  12: [{ f: at(16.23), s: D(16.23, [3.2, 2.0, 8.5], [0, 0.9, 2], { fov: 46, roll: -0.04 }, 0.003) }],
+  13: [{ f: at(17.19), s: D(17.19, [1.2, 1.6, 4.2], [0.7, 1.35, 1.2], { fov: 38 }, 0.0035) }],
+  14: [{ f: at(18.94), s: D(18.94, [1.4, 0.8, 2.6], [1.1, 0.3, 1.4], { fov: 36 }, 0.004, 0.01, 14) }],
+  // the first two pigeons
+  15: [{ f: at(19.69), s: (f) => { const p = flight1(f / FPS); return { pos: [p[0] - 0.5, 1.3, p[2] + 4.5], look: [p[0], p[1], p[2]], fov: 44 }; } }],
+  16: [{ f: at(20.99), s: D(20.99, [-0.6, 1.6, GERZ - 3.2], [0.4, 1.6, GERZ - 0.3], { fov: 40 }, 0.003) },
+    { f: at(21.6), cut: true, s: (f) => { const p = flight1(f / FPS); return { pos: [p[0] + 1.2, 2.8, p[2] + 4.5], look: [p[0], Math.max(0.5, p[1]), p[2]], fov: 46 }; } }],
+  17: [{ f: at(22.31), s: (f) => { const p = flight2(f / FPS); return { pos: [p[0] + 0.6, 1.4, p[2] + 4.8], look: [p[0], Math.max(0.5, p[1]), p[2]], fov: 46, roll: f / FPS > EV.shoot2 ? 0.08 : 0 }; } }],
+  18: [{ f: at(24.11), s: D(24.11, [1.35, 0.75, 2.3], [1.1, 0.35, 1.4], { fov: 34 }, 0.004, 0.012, 14) }],
+  // Cher Ami
+  19: [{ f: at(25.69), s: D(25.69, [1.0, 1.05, 3.0], [0.95, 0.98, 1.45], { fov: 36, roll: 0.04 }, 0.004, 0.012, 14) }],
+  20: [{ f: at(27.3), s: D(27.3, [1.25, 1.35, 3.2], [0.85, 1.15, 1.35], { fov: 36 }, 0.0035) }],
+  21: [{ f: at(28.64), s: D(28.64, [0.9, 1.25, 2.2], [0.9, 1.25, 1.4], { fov: 30 }, 0.003) }],
+  22: [{ f: at(30.05), s: (f) => { const p = heroFly(f / FPS); return { pos: [p[0] - 0.4, p[1] - 0.2, p[2] + 2.6], look: p, fov: 42, roll: f / FPS > EV.shot ? 0.1 : 0 }; } }],
+  23: [{ f: at(31.69), s: (f) => { const p = heroFly(f / FPS); return { pos: [p[0] + 0.8, 1.3, p[2] + 2.6], look: [p[0], Math.max(0.4, p[1]), p[2]], fov: 44, roll: -0.06 }; } }],
+  24: [{ f: at(32.52), s: (f) => { const p = heroFly(f / FPS); return { pos: [p[0] - 0.6, 0.6, p[2] + 2.8], look: [p[0], Math.max(0.5, p[1]), p[2]], fov: 46 }; } }],
+  25: [{ f: at(34.82), s: D(34.82, [-1.05, 1.75, 4.0], [-1.3, 1.65, 1.8], { fov: 32, roll: 0.06 }, 0.004, 0.03, 8) }],
+  26: [{ f: at(35.27), s: (f) => { const u = (f / FPS - 35.27) / 2.06, x = -8 + 5 * u, y = 6.5 + 1.5 * u, z = 4 * u; return { pos: [x - 0.6, y + 0.2, z + 3.2], look: [x, y + 0.3, z], fov: 42 }; } }],
+  // homing: the loft, the bed, the bullets
+  27: [{ f: at(37.33) - 4, s: C(37.33, 39.97, { pos: [LX + 7, 3.2, LZ + 9], look: [LX, 2.6, LZ], fov: 44 }, { pos: [LX + 4.5, 3.0, LZ + 6.5], look: [LX, 2.8, LZ], fov: 42 }) }],
+  28: [{ f: at(39.97), s: D(39.97, [H + 2.2, 1.7, 2.6], [H, 0.9, -2.4], { fov: 44 }, 0.003) }],
+  29: [{ f: at(41.65), s: (f) => { const t = f / FPS, x = -14 + 9 * (t - 41.65); return { pos: [x - 1.2, 7.6, 1.8], look: [x + 0.4, 7.4, 0], fov: 40, roll: 0.03 }; } }],
+  30: [{ f: at(43.84), s: D(43.84, [LX + 1.6, 2.9, LZ + 5.6], [LX + 0.6, 2.3, LZ + 1.6], { fov: 46 }, 0.003) }],
+  31: [{ f: at(45.99), s: D(45.99, [LX + 0.45, 2.48, LZ + 2.6], [LX + 0.05, 2.42, LZ + 1.35], { fov: 32 }, 0.0035) }],
+  // rescue
+  32: [{ f: at(48.7), s: D(48.7, [GX + 4.6, 1.4, 5.2], [GX + 1, 1.3, 0], { fov: 44 }, 0.002) }],
+  33: [{ f: at(49.9), s: C(49.9, 52.12, { pos: [2, 1.6, 9], look: [0, 1.1, 3], fov: 46 }, { pos: [6, 3.5, 12], look: [0, 1.0, 3], fov: 48 }) }],
+  34: [{ f: at(52.12), s: D(52.12, [LX + 1.2, 1.7, LZ + 5.6], [LX + 0.2, 1.4, LZ + 2.6], { fov: 40 }, 0.003, 0.008, 18) }],
+  35: [{ f: at(53.7), s: D(53.7, [LX + 0.4, 2.48, LZ + 2.6], [LX + 0.05, 2.38, LZ + 1.35], { fov: 34, roll: -0.03 }, 0.004) }],
+  // the historians and the lab
+  36: [{ f: at(55.34), s: D(55.34, [H + 0.3, 1.75, 3.3], [H, 1.35, -1.0], { fov: 44 }, 0.003) }],
+  37: [{ f: at(56.38), s: D(56.38, [H + 0.2, 1.6, 1.6], [H, 1.45, -1.0], { fov: 40, roll: 0.04 }, 0.004, 0.01, 14) }],
+  38: [{ f: at(58.46), s: D(58.46, [H + 0.4, 1.75, 2.6], [H, 1.35, -1.2], { fov: 44 }, 0.003) }],
+  39: [{ f: at(60.25), s: D(60.25, [H - 0.6, 1.5, 0.5], [H - 0.6, 1.5, -1.2], { fov: 36 }, 0.004) }],
+  40: [{ f: at(61.51), s: D(61.51, [H - 0.25, 1.24, 0.4], [H - 0.6, 1.15, -1.3], { fov: 34 }, 0.004) }],
+  41: [{ f: at(63.59), s: D(63.59, [H - 0.3, 1.22, 0.1], [H - 0.6, 1.15, -1.3], { fov: 32, roll: 0.06 }, 0.005, 0.02, 10) }],
 };
 
 // impact kicks: the image offset flips sign every frame and decays over 7 f
-const KICKS: [number, number][] = [[EV.no, 0.6], [EV.cough, 0.4], [EV.wait, 1.2], [EV.banned, 1.4], [EV.hated, 0.6],
-  [EV.firing, 1.8], [55.2, 1.2], [56.2, 1.4]];
+const KICKS: [number, number][] = [[EV.maybe, 0.6], [EV.artillery, 1.2], [EV.shelling, 1.6], [16.95, 1.2], [17.4, 1.0], [EV.shoot1, 1.0], [EV.shoot2, 1.0],
+  [EV.shot, 1.4], [EV.falls, 0.8], [EV.wait, 1.2], [EV.lands, 0.6], [EV.gunsStop, 0.5], [EV.medal, 0.6], [EV.boy, 1.2]];
 export const kickAt = (t: number) => {
   let a = 0;
   for (const [t0, g] of KICKS) {
@@ -184,11 +183,11 @@ export const camAt = (id: number, f: number): Cam => {
 // ---------------- lens: depth of field per shot ----------------
 export type Dof = { f: number; dur?: number; cInf: number; focus?: (f: number) => V3 };
 const DOFS: [number, number][] = [
-  [0, 12], [1.34, 6], [2.59, 14], [3.98, 0], [5.69, 12], [7.68, 6], [9.4, 14], [10.04, 10], [12.71, 10], [13.76, 13],
-  [15.19, 4], [16.8, 14], [18.9, 14], [20.0, 8], [21.03, 15], [22.13, 6], [23.63, 5], [25.99, 13], [26.67, 10], [27.52, 9],
-  [28.55, 0], [31.57, 14], [32.64, 14], [33.88, 14], [34.53, 15], [36.13, 8], [38.52, 7], [40.8, 16], [41.3, 0], [43.09, 12],
-  [45.7, 15], [47.78, 12], [50.06, 9], [52.33, 10], [54.81, 6], [56.63, 0], [58.48, 12],
-];
+  [0, 15], [1.83, 16], [3.0, 6], [5.19, 16], [5.78, 0], [7.9, 4], [10.92, 10], [12.37, 14], [13.25, 0], [14.17, 15], [15.23, 10],
+  [16.23, 6], [17.19, 12], [18.94, 15], [19.69, 10], [20.99, 12], [21.6, 8], [22.31, 8], [24.11, 15], [25.69, 16], [27.3, 14],
+  [28.64, 15], [30.05, 10], [32.52, 10], [34.82, 16], [35.27, 0], [37.33, 8], [39.97, 10], [41.65, 6], [43.84, 12], [45.99, 16],
+  [48.7, 8], [49.9, 6], [52.12, 12], [53.7, 15], [55.34, 10], [56.38, 14], [58.46, 10], [60.25, 14], [61.51, 15], [63.59, 16],
+]
 export const DOF: Dof[] = DOFS.map(([t, c]) => ({ f: fr(t), cInf: c }));
 export const dofAt = (f: number) => {
   let i = 0; while (i + 1 < DOF.length && f >= DOF[i + 1].f) i++;

@@ -4,12 +4,12 @@
 // frame f (pure function of id + f).
 import * as THREE from "three";
 import { Batch, boxGeo, V, lam, Kit, Ray, house, prop, setSight, quad } from "./build";
-import { ctex, stoneHD, planksHD, cloudHD, rng } from "./paint";
+import { ctex, stoneHD, planksHD, cloudHD, rng, grassHD, roofHD } from "./paint";
 import { LIGHTS, LOOK, LightPreset, LightName } from "./lights";
 import { TONE, CHAR, untone, twoTone } from "./shade";
 import { NOINK } from "./ink";
 import { Pool, Actor, Fx, stage } from "./cast";
-import { FPS, SHOTS, camAt, V3, ShotDef, GZ, TW, FLOOR, PARA, HQ, TREES, TREE_Z, lightOn } from "./story";
+import { FPS, SHOTS, camAt, V3, ShotDef, HQ, LOFT, GUN, DESK, BED, LAB, FLASHES } from "./story";
 
 export const loadKit = () => Promise.resolve({} as Kit); // no external models: every prop is built here
 
@@ -79,28 +79,6 @@ const flat = (x0: number, x1: number, z0: number, z1: number, y: number, tile = 
 const vwall = (x0: number, z0: number, x1: number, z1: number, y0: number, y1: number, tile = 4) =>
   quad(V(x0, y0, z0), V(x1, y0, z1), V(x1, y1, z1), V(x0, y1, z0), Math.hypot(x1 - x0, z1 - z0) / tile, (y1 - y0) / tile);
 
-const XL = 70; // trench lines run x -XL..XL
-/** one trench centred at zc: walls (planks), floor + duckboards, sandbag parapet on the enemy side (dir = +1 enemy at +z) */
-const trench = (b: Batch, M: Record<string, THREE.Material>, zc: number, dir: number, seed: number) => {
-  const z0 = zc - TW, z1 = zc + TW;
-  b.add(flat(-XL, XL, z0, z1, FLOOR, 3), M.mud);
-  b.add(vwall(-XL, z0, XL, z0, FLOOR, 0, 2), M.planks); // back wall faces +z
-  b.add(vwall(XL, z1, -XL, z1, FLOOR, 0, 2), M.planks); // front wall faces -z
-  // duckboards along the floor
-  for (let x = -XL; x < XL; x += 1.2) b.add(boxGeo(V(x + 0.05, FLOOR, zc - 0.35), V(x + 1.1, FLOOR + 0.08, zc + 0.35), 1), M.wood);
-  // fire step on the enemy side
-  b.add(boxGeo(V(-XL, FLOOR, dir > 0 ? z1 - 0.45 : z0), V(XL, FLOOR + 0.62, dir > 0 ? z1 : z0 + 0.45), 2), M.planks);
-  // sandbag parapet (enemy side, 3 rows) and lower parados (rear, 2 rows), staggered, slightly jittered
-  const r = rng(seed);
-  for (const [zEdge, rows, d] of [[dir > 0 ? z1 : z0, 3, dir], [dir > 0 ? z0 : z1, 2, -dir]] as const)
-    for (let row = 0; row < rows; row++)
-      for (let x = -XL + (row % 2) * 0.32; x < XL; x += 0.64) {
-        const y = row * 0.22, zz = zEdge + d * (0.3 + 0.08 * row + (r() - 0.5) * 0.05), w = 0.6, h = 0.24, dd = 0.38;
-        const g = new THREE.BoxGeometry(w, h, dd, 1, 1, 1);
-        g.translate(x + w / 2 + (r() - 0.5) * 0.04, y + h / 2, zz); b.add(g, M.bag);
-      }
-};
-
 type Mats = Record<string, THREE.Material>;
 export class World {
   root = new THREE.Group();
@@ -115,7 +93,7 @@ export class World {
   private sunCache = new Map<number, THREE.Vector3>();
   private clouds: THREE.Mesh[] = [];
   private candles: { x: number; g: THREE.Group }[] = [];
-  private crosses = new THREE.Group(); private mapTable = new THREE.Group(); private papal = new THREE.Group();
+  private crosses = new THREE.Group(); private mapTable = new THREE.Group(); private papal = new THREE.Group(); private lab = new THREE.Group();
   private frustum = new THREE.Frustum();
   private m4 = new THREE.Matrix4(); private v = new THREE.Vector3(); private sph = new THREE.Sphere();
 
@@ -167,6 +145,10 @@ export class World {
     M.pine = lam("pine", () => ({ color: "#2f6a3f" }));
     M.candle = new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 2.4, 1.2) }); // HDR: blooms
     M.wax = lam("wax", () => ({ color: "#f4eedc" }));
+    M.grass = lam("grassHD", () => ({ map: grassHD(), color: new THREE.Color(0.8, 0.78, 0.6) }));
+    M.loftWood = lam("loftWood", () => ({ map: planksHD(), color: new THREE.Color(0.95, 0.8, 0.62) }));
+    M.roofR = lam("roofRed", () => ({ map: roofHD("#b8644f"), side: THREE.DoubleSide }));
+    M.iron = twoTone(new THREE.MeshPhongMaterial({ color: "#4a4e46", specular: "#8a8a8a", shininess: 40 }), 0.15);
     M.cross = lam("crossWood", () => ({ color: "#a07a52" }));
     M.hallFloor = lam("hqFloorHD", () => ({ map: stoneHD("hallFloorHD", ["#b9a58e", "#ad9982", "#c4b19b", "#a28e78"], "#7d6c5a") }));
     M.hallWall = lam("hqWallHD", () => ({ map: stoneHD("hallWallHD", ["#c9b9a2", "#bfae96", "#d2c3ad", "#b5a48c"], "#8d7d6a") }));
@@ -177,106 +159,78 @@ export class World {
     M.gold = twoTone(new THREE.MeshPhongMaterial({ color: "#e0a92c", specular: "#fff0b0", shininess: 50 }), 0.2);
     M.red = lam("velvet", () => ({ color: "#b02e3a" }));
 
-    // ---- the field: ground with two trench cuts, no man's land, wire, craters ----
+    // ---- the Argonne: a muddy forest hollow (the pocket), shell craters, fallen logs, autumn woods all round ----
     const F = this.front;
     const b = new Batch();
-    b.add(flat(-600, 600, -600, -TW, 0, 4), M.mud);
-    b.add(flat(-600, 600, TW, GZ - TW, 0, 4), M.mud);
-    b.add(flat(-600, 600, GZ + TW, 600, 0, 4), M.mud);
-    for (const [x0, x1] of [[-600, -XL], [XL, 600]]) { b.add(flat(x0, x1, -TW, TW, 0, 4), M.mud); b.add(flat(x0, x1, GZ - TW, GZ + TW, 0, 4), M.mud); }
-    trench(b, M, 0, 1, 3);
-    trench(b, M, GZ, -1, 7);
-    // barbed wire belts in front of both lines: posts + three wires
+    b.add(flat(-600, 600, -600, 600, 0, 4), M.mud);
     const r = rng(11);
-    for (const zw of [4.2, GZ - 4.2]) {
-      const posts: number[] = [];
-      for (let x = -XL; x <= XL; x += 2.6 + r() * 0.8) posts.push(x);
-      for (const x of posts) if (Math.abs(x) > 3.5) b.add(new THREE.CylinderGeometry(0.05, 0.06, 1.2, 6).translate(x, 0.6, zw + (r() - 0.5) * 0.3), M.post);
-      for (const h of [0.35, 0.7, 1.05]) for (let i = 0; i + 1 < posts.length; i++) {
-        if (Math.abs(posts[i]) < 3.5) continue; // a gap in the wire in front of the centre (the climbing German walks through it)
-        const a = V(posts[i], h, zw), c = V(posts[i + 1], h - 0.12, zw), m2 = a.clone().add(c).multiplyScalar(0.5);
-        const g = new THREE.CylinderGeometry(0.012, 0.012, a.distanceTo(c), 4);
-        g.applyMatrix4(new THREE.Matrix4().compose(m2, new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), c.clone().sub(a).normalize()), V(1, 1, 1)));
-        b.add(g, M.wire);
-      }
-    }
-    // shell craters with icy puddles (kept out of the centre strip where people stand)
-    for (let i = 0; i < 38; i++) {
-      const x = (r() - 0.5) * 120, z = 6 + r() * (GZ - 12), rad = 0.8 + r() * 2.2;
-      if (Math.abs(x) < 14 && z > 9 && z < 21) continue;
+    for (let i = 0; i < 30; i++) {
+      const x = (r() - 0.5) * 70, z = -14 + r() * 40, rad = 0.7 + r() * 1.8;
+      if (Math.abs(x) < 7 && z > -3 && z < 7) continue; // the pocket where the men sit stays clear
       b.add(new THREE.CircleGeometry(rad, 20).rotateX(-Math.PI / 2).translate(x, 0.015, z), M.crater);
       b.add(new THREE.TorusGeometry(rad, 0.16, 6, 20).rotateX(Math.PI / 2).scale(1, 0.6, 1).translate(x, 0.04, z), M.mud);
-      if (r() < 0.5) b.add(new THREE.CircleGeometry(rad * 0.55, 16).rotateX(-Math.PI / 2).translate(x, 0.025, z), M.ice);
     }
-    // shattered tree trunks behind both lines and a few in no man's land
-    for (let i = 0; i < 26; i++) {
-      const side = i % 3, x0 = (r() - 0.5) * 140, x = Math.abs(x0) < 14 ? x0 + Math.sign(x0 || 1) * 14 : x0, z = side === 0 ? -8 - r() * 30 : side === 1 ? GZ + 8 + r() * 30 : 6 + r() * 18;
-      if (side === 2 && Math.abs(x) < 16) continue;
-      const h = 2.5 + r() * 4, tr = 0.12 + r() * 0.1;
-      const g = new THREE.CylinderGeometry(tr * 0.6, tr, h, 7).translate(0, h / 2, 0);
-      g.applyMatrix4(new THREE.Matrix4().makeRotationZ((r() - 0.5) * 0.25)).translate(x, 0, z);
-      b.add(g, M.bark);
-      b.add(new THREE.CylinderGeometry(0.03, 0.06, 1.1, 5).rotateZ(0.9 * (r() < 0.5 ? 1 : -1)).translate(x, h * 0.75, z), M.bark);
+    for (const [x, z, len, yaw] of [[-5.5, -2.6, 4, 0.3], [5.8, 1.5, 3.4, -0.5], [-3, 7.4, 3.6, 0.1], [3.4, -3.4, 3, 1.2]] as const) // fallen logs
+      b.add(new THREE.CylinderGeometry(0.22, 0.26, len, 9).rotateZ(Math.PI / 2).rotateY(yaw).translate(x, 0.22, z), M.bark);
+    // shattered trunks near the pocket
+    for (let i = 0; i < 14; i++) {
+      const a2 = r() * Math.PI * 2, d = 8 + r() * 10, x = Math.cos(a2) * d, z = 2 + Math.sin(a2) * d;
+      const h = 2.5 + r() * 3.5, tr = 0.14 + r() * 0.1;
+      b.add(new THREE.CylinderGeometry(tr * 0.6, tr, h, 7).translate(0, h / 2, 0).applyMatrix4(new THREE.Matrix4().makeRotationZ((r() - 0.5) * 0.25)).translate(x, 0, z), M.bark);
     }
     setSight(sightLines());
-    // ruined farm houses far behind each line (a Flemish village)
-    house(b, -38, -55, 0, 8, 7, 6.5, 2, 0); house(b, 24, -62, 0.2, 7, 6, 6, 4, 0);
-    house(b, 30, GZ + 55, Math.PI, 8, 7, 7, 1, 0); house(b, -26, GZ + 62, Math.PI + 0.2, 7, 6, 6.2, 3, 0);
+    // the forest: autumn trees ring the pocket and fill the hills (any tree in a camera's way is left out)
+    for (let i = 0; i < 260; i++) {
+      const a2 = r() * Math.PI * 2, d = 9 + r() * 70, x = Math.cos(a2) * d, z = 2 + Math.sin(a2) * d;
+      prop(b, {}, r() < 0.7 ? "tree_oak" : "tree_fat", x, 0, z, 7 + r() * 6, r() * 6);
+    }
+    // the pigeon loft behind the lines at x = 60: a wooden coop on four posts, gable roof, landing board, grass around
+    const LX = LOFT[0], LZ = LOFT[2];
+    b.add(flat(LX - 30, LX + 30, LZ - 30, LZ + 30, 0.01, 4), M.grass);
+    for (const [dx, dz] of [[-1.3, -0.9], [1.3, -0.9], [-1.3, 0.9], [1.3, 0.9]]) b.add(boxGeo(V(LX + dx - 0.08, 0, LZ + dz - 0.08), V(LX + dx + 0.08, 2.2, LZ + dz + 0.08)), M.post);
+    b.add(boxGeo(V(LX - 1.5, 2.2, LZ - 1.1), V(LX + 1.5, 3.8, LZ + 1.1), 1.2), M.loftWood);
+    b.add(boxGeo(V(LX - 1.6, 2.1, LZ + 1.1), V(LX + 1.6, 2.2, LZ + 1.7)), M.wood); // landing board
+    for (const dx of [-0.8, 0, 0.8]) b.add(boxGeo(V(LX + dx - 0.18, 2.35, LZ + 1.1), V(LX + dx + 0.18, 2.75, LZ + 1.13)), M.dark); // entrance holes
+    b.add(new THREE.ConeGeometry(2.3, 1.4, 4).rotateY(Math.PI / 4).scale(1, 1, 0.72).translate(LX, 4.5, LZ), M.roofR);
+    house(b, LX + 9, LZ - 8, 0, 8, 6, 5, 2, 0); // the signal corps hut
+    // our own big gun at x = -60 (shot: "their own artillery")
+    b.add(new THREE.CylinderGeometry(0.16, 0.22, 3.4, 12).rotateZ(Math.PI / 2 - 0.45).translate(GUN[0] + 1.2, 1.5, GUN[2]), M.iron);
+    for (const s2 of [-1, 1]) b.add(new THREE.TorusGeometry(0.75, 0.1, 8, 20).translate(GUN[0], 0.75, GUN[2] + s2 * 0.7), M.wood);
+    b.add(boxGeo(V(GUN[0] - 0.6, 0.6, GUN[2] - 0.6), V(GUN[0] + 0.8, 1.1, GUN[2] + 0.6)), M.iron);
     b.build(F);
     this.front.traverse((o) => (o.receiveShadow = true));
 
-    // ---- candle-lit Christmas trees on the German parapet ----
-    const glow = new THREE.SpriteMaterial({ map: glowTex(), color: new THREE.Color(1.4, 1.1, 0.7), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
-    for (const x of TREES) {
-      const g = new THREE.Group(), tb = new Batch(), h = 1.15;
-      tb.add(new THREE.CylinderGeometry(0.04, 0.05, 0.25, 6).translate(0, 0.12, 0), M.post);
-      for (const [y, rr, hh] of [[0.2, 0.42, 0.55], [0.48, 0.32, 0.48], [0.74, 0.2, 0.42]] as const) tb.add(new THREE.ConeGeometry(rr, hh, 10).translate(0, y + hh / 2, 0), M.pine);
-      tb.build(g);
-      const lit = new THREE.Group();
-      for (let k = 0; k < 9; k++) {
-        const a = k * 2.4, y = 0.3 + (k / 9) * (h - 0.42), rad = 0.38 * (1 - (y - 0.2) / h) + 0.04;
-        const px = Math.cos(a) * rad, pz = Math.sin(a) * rad;
-        const wax = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.06, 5), M.wax); wax.position.set(px, y + 0.03, pz);
-        const flame = new THREE.Mesh(new THREE.SphereGeometry(0.022, 6, 4), M.candle); flame.position.set(px, y + 0.08, pz); flame.layers.set(NOINK);
-        const halo = new THREE.Sprite(glow); halo.position.set(px, y + 0.08, pz); halo.scale.setScalar(0.14); halo.layers.set(NOINK);
-        lit.add(wax, flame, halo);
-      }
-      const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.05), M.candle); star.position.set(0, h + 0.04, 0); star.layers.set(NOINK); lit.add(star);
-      g.add(lit); g.userData.lit = lit;
-      g.position.set(x, PARA, TREE_Z);
-      this.candles.push({ x, g }); F.add(g);
-    }
-    // burial crosses (shot 26 and the end)
-    const cb = new Batch();
-    for (const [x, z] of [[9.2, 16.6], [10.4, 16.8], [11.6, 16.5], [12.8, 16.7]]) {
-      cb.add(boxGeo(V(x - 0.05, 0, z - 0.04), V(x + 0.05, 1.0, z + 0.04)), M.cross);
-      cb.add(boxGeo(V(x - 0.28, 0.66, z - 0.04), V(x + 0.28, 0.76, z + 0.04)), M.cross);
-      cb.add(new THREE.SphereGeometry(1, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(0.45, 0.16, 0.8).translate(x, 0, z + 0.7), M.mud);
-    }
-    cb.build(this.crosses); F.add(this.crosses);
-
-    // ---- the HQ room at x = 300 (open to the sky; its walls cast no shadow) ----
+    // ---- the room at x = 300: bedroom (night analogy), the historians' desk, the 2021 lab ----
     const hs = new Batch(), X = HQ[0];
     hs.add(flat(X - 7, X + 7, -6, 8, 0, 3), M.hallFloor);
     for (const [x0, z0, x1, z1] of [[X - 7, 8, X - 7, -6], [X + 7, -6, X + 7, 8], [X - 7, -6, X + 7, -6], [X + 7, 8, X - 7, 8]] as const)
       hs.add(vwall(x0, z0, x1, z1, 0, 7, 4), M.hallWall);
-    for (const s of [-1, 1]) for (const z of [-5, 1, 7]) hs.add(boxGeo(V(X + s * 6.5 - 0.35, 0, z - 0.35), V(X + s * 6.5 + 0.35, 7, z + 0.35), 2), M.cap);
-    // a tall window in the back wall
     hs.add(boxGeo(V(X - 1.0, 1.6, -5.98), V(X + 1.0, 5.4, -5.9)), lam("winGlass", () => ({ color: "#9fb8e0", emissive: new THREE.Color("#3a4a6a") })));
     hs.add(boxGeo(V(X - 0.06, 1.6, -5.9), V(X + 0.06, 5.4, -5.85)), M.dark); hs.add(boxGeo(V(X - 1.0, 3.4, -5.9), V(X + 1.0, 3.5, -5.85)), M.dark);
     hs.build(this.hq, false);
-    // generals' map table
+    // desk (historians) = the old map table with papers
     const tb2 = new Batch();
     tb2.add(boxGeo(V(X - 1.6, 0.85, -2.6), V(X + 1.6, 0.97, -1.2)), M.table);
     for (const [x, z] of [[-1.45, -2.45], [1.45, -2.45], [-1.45, -1.35], [1.45, -1.35]]) tb2.add(boxGeo(V(X + x - 0.07, 0, z - 0.07), V(X + x + 0.07, 0.85, z + 0.07)), M.table);
     tb2.add(quad(V(X - 1.4, 0.98, -1.35), V(X + 1.4, 0.98, -1.35), V(X + 1.4, 0.98, -2.45), V(X - 1.4, 0.98, -2.45)), M.map);
+    for (let i = 0; i < 6; i++) tb2.add(boxGeo(V(X - 1.2 + i * 0.4, 0.98, -2.2 + (i % 2) * 0.3), V(X - 0.9 + i * 0.4, 1.0 + 0.04 * (i % 3), -1.8 + (i % 2) * 0.3)), M.wax);
     tb2.build(this.mapTable); this.hq.add(this.mapTable);
-    // the Pope's chair under the window
+    // bed (night analogy)
     const pb = new Batch();
-    pb.add(boxGeo(V(X - 0.7, 0, -4.6), V(X + 0.7, 0.5, -3.6)), M.gold);
-    pb.add(boxGeo(V(X - 0.7, 0, -4.75), V(X + 0.7, 2.6, -4.5)), M.gold);
-    pb.add(boxGeo(V(X - 0.5, 0.6, -4.5), V(X + 0.5, 2.3, -4.45)), M.red);
+    pb.add(boxGeo(V(X - 1.0, 0, -4.6), V(X + 1.0, 0.5, -1.6)), M.table);
+    pb.add(boxGeo(V(X - 0.95, 0.5, -4.55), V(X + 0.95, 0.68, -1.65)), lam("blanket", () => ({ color: "#3f5f8a" })));
+    pb.add(boxGeo(V(X - 0.7, 0.68, -4.45), V(X + 0.7, 0.85, -3.95)), M.wax);
+    pb.add(boxGeo(V(X - 1.0, 0, -4.75), V(X + 1.0, 1.3, -4.6)), M.table);
     pb.build(this.papal); this.hq.add(this.papal);
+    // lab bench + microscope (2021)
+    const lb = new Batch();
+    lb.add(boxGeo(V(X - 1.8, 0.9, -2.6), V(X + 1.8, 1.0, -1.4)), M.wax);
+    for (const [x, z] of [[-1.7, -2.5], [1.7, -2.5], [-1.7, -1.5], [1.7, -1.5]]) lb.add(boxGeo(V(X + x - 0.05, 0, z - 0.05), V(X + x + 0.05, 0.9, z + 0.05)), M.iron);
+    lb.add(boxGeo(V(X + 0.6, 1.0, -2.2), V(X + 1.0, 1.06, -1.8)), M.iron);
+    lb.add(new THREE.CylinderGeometry(0.05, 0.05, 0.6, 10).rotateZ(0.35).translate(X + 0.85, 1.38, -2.0), M.iron);
+    lb.add(new THREE.CylinderGeometry(0.07, 0.07, 0.2, 10).rotateZ(0.35).translate(X + 0.74, 1.66, -2.0), M.iron);
+    for (let i = 0; i < 4; i++) lb.add(new THREE.CylinderGeometry(0.05, 0.05, 0.22, 10).translate(X - 1.3 + i * 0.18, 1.11, -2.2), lam("tube" + i, () => ({ color: ["#f28fb5", "#3fa7d6", "#f7d046", "#5aa75a"][i] })));
+    lb.build(this.lab); this.hq.add(this.lab);
   }
 
   /** camera-relative sun, frozen per shot */
@@ -309,7 +263,7 @@ export class World {
     const K = LOOK[light], sunDir = this.shotSun(id, s, L);
     this.hemi.color.set(L.sky); this.hemi.groundColor.set(L.ground); this.hemi.intensity = L.hemiI;
     // artillery flashes light the field on "the guns kept firing" (shot 39)
-    const flash = id === 39 ? [55.82, 56.2, 56.45].reduce((a, t0) => a + Math.max(0, 1 - Math.abs(t - t0 - 0.05) / 0.12), 0) : 0;
+    const flash = FLASHES.reduce((a, t0) => a + Math.max(0, 1 - Math.abs(t - t0 - 0.05) / 0.12), 0) * (s.loc === "front" ? 1 : 0);
     this.sun.color.set(L.sunCol); this.sun.intensity = L.sunI * (1 + 1.6 * flash);
     const Rr = THREE.MathUtils.clamp(dist * 1.15 + 7, 12, 120);
     this.sun.position.copy(focus).addScaledVector(sunDir, 260); this.sun.target.position.copy(focus);
@@ -317,7 +271,7 @@ export class World {
     sc.left = -Rr; sc.right = Rr; sc.top = Rr; sc.bottom = -Rr; sc.near = 20; sc.far = 560; sc.updateProjectionMatrix();
     this.sun.shadow.bias = L.bias; this.sun.shadow.normalBias = L.normalBias * (Rr / 12);
     TONE.uLitCol.value.set(...L.lit).multiplyScalar(1 + 0.8 * flash); TONE.uShadeCol.value.set(...L.shade); TONE.uShadeLift.value.set(...L.lift);
-    TONE.uLambert.value = L.lambert; TONE.uSideK.value = L.sideK; TONE.uTerm.value = L.term; TONE.uBounce.value.set(...K.bounce); TONE.uSat.value = id === 40 ? 0.7 : K.sat;
+    TONE.uLambert.value = L.lambert; TONE.uSideK.value = L.sideK; TONE.uTerm.value = L.term; TONE.uBounce.value.set(...K.bounce); TONE.uSat.value = K.sat;
     CHAR.uCharTint.value.set(...L.charTint); CHAR.uCharShade.value = L.charShade; CHAR.uGrad.value = L.charGrad;
     CHAR.uBodyGrad.value = L.bodyGrad; CHAR.uSideTint.value.set(...L.sideTint);
     // ---- sky, stars, moon, fog, clouds ----
@@ -335,18 +289,9 @@ export class World {
     for (const m of this.clouds) { m.visible = !night && light !== "hall"; m.lookAt(cam.position.x, m.position.y, cam.position.z); }
     // ---- places ----
     this.front.visible = s.loc === "front"; this.hq.visible = s.loc === "hq";
-    this.mapTable.visible = id === 9 || id === 37 || id === 38;
-    this.papal.visible = id === 8;
-    // candle trees: on the parapet from the night of shot 2 (flash-forward) and from "lights appear", lit only at night
-    const treesUp = (id === 2 || id === 3 || id >= 11) && id !== 39 && id !== 40;
-    for (const { x, g } of this.candles) {
-      const on = night && (id <= 3 || id >= 35 || t >= lightOn(x));
-      g.visible = treesUp;
-      (g.userData.lit as THREE.Group).visible = on;
-      // candles flicker a little
-      (g.userData.lit as THREE.Group).scale.setScalar(on ? 1 + 0.04 * Math.sin(t * 13 + x) : 1);
-    }
-    this.crosses.visible = id === 26 || id === 40;
+    this.mapTable.visible = DESK.includes(id);
+    this.papal.visible = BED.includes(id);
+    this.lab.visible = LAB.includes(id);
     // ---- cast + effects ----
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);
     const st = stage(id, t, { pos: cam.position, right, sun: sunDir }, light);
