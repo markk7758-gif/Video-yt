@@ -335,10 +335,10 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     }
     case 7: {
       hansPeek({ expr: ex(t, [[0, "neutral"], [EV.cough, "pained"]]), look: -1 });
-      if (t >= EV.cough - 0.05) puffs(out, t, EV.cough - 0.05, [[-0.25, STEP + 1.62, GSTEPZ - 0.2]], 0.45, 0.6);
+      if (t >= EV.cough - 0.05) puffs(out, t, EV.cough - 0.05, [[0.25, STEP + 1.42, GSTEPZ - 0.55]], 0.22, 0.6);
       break;
     }
-    case 8: E(POPE, "pope", H, 0, -0.6, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.begged, "pained"]]), prop: "pray" }, { i: 7 }); break;
+    case 8: E(POPE, "pope", H, 0, -0.6, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.begged, "relief"], [11.6, "nervous"]]), prop: "pray" }, { i: 7 }); break;
     case 9: {
       const shake = t > EV.no - 0.1 ? Math.sin((t - EV.no) * 24) * 7 * Math.max(0, 1 - (t - EV.no) / 0.5) : 0;
       E(BRIT_GENERAL, "bg", H - 0.85, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.no, "stern"]]), headTilt: shake, facing: 1 }, { i: 8 });
