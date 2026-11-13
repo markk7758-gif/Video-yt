@@ -415,7 +415,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     case 28: tommyPeek({ expr: "shock", look: 0 }, { popAt: EV.wait }); break;
     case 29: {
       const u = (t - 41.3) / 1.8;
-      out.fx.push({ key: "noteBig", cw: 220, ch: 260, draw: (p) => fxNote(p, 1, "#f4f0e6"), x: -6 + 12 * u, y: 2.2 + 0.5 * Math.sin(u * 6), z: 15, w: 0.9, h: 1.05, rot: 0.2 * Math.sin(u * 5) });
+      out.fx.push({ key: "noteBig", cw: 220, ch: 260, draw: (p) => fxNote(p, 1, "#ffe9a8"), x: -2.2 + 4.4 * u, y: 2.3 + 0.25 * Math.sin(u * 7), z: 14.2, w: 1.1, h: 1.3, rot: 0.25 * Math.sin(u * 6) });
       break;
     }
     case 30: E(T(0), "tommy", 0, FLOOR, 0.15, { mode: "stand", expr: "neutral", prop: "mug" }, { i: 1 }); breath(out, t, 0, FLOOR + 1.62, 0.15, 1, -1); break;
