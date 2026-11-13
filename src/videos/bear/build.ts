@@ -264,7 +264,7 @@ const VEG: Record<string, VegKind> = {
   tree_oak: "round", tree_default: "round", tree_detailed: "round", tree_fat: "fat", "tree-high-round": "tall", tree: "tall",
   tree_cone: "cone", plant_bushLarge: "bush", plant_bushDetailed: "bush", plant_bush: "bush", hedge: "hedge",
 };
-const LEAF = ["#d9a23a", "#c98a2e", "#e2b84a", "#b98a34", "#9aa03a"]; // Argonne in October: autumn
+const LEAF = ["#6f9a3c", "#5f8a3a", "#82a24a", "#577f3a", "#8f9a3a"]; // olive scrub (Iran, Italy) and Scottish park green
 /** canopy paint (equal px per metre on a unit sphere: 256 around x 128 pole to pole): light crown, darker belly,
  *  soft leaf-clump dabs (kept low contrast: the two-tone sun term does the main modelling) */
 const leafTex = (i: number) => ctex("leafHD" + i, 256, 128, (g, r) => {
