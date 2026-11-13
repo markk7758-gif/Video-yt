@@ -316,7 +316,8 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       break;
     }
     case 4: {
-      for (const [x, v] of [[-6, 1], [3, 2], [9, 3]] as const) E(T(v), `t${v}`, x, FLOOR, 0.1, { mode: "stand", expr: "neutral" }, { i: 3 + v });
+      for (const [x, v] of [[-3, 1], [0.4, 0], [2.6, 2], [5.6, 3]] as const) E(T(v), v ? `t${v}` : "tommy", x, FLOOR, 0.1, { mode: "stand", expr: v ? "neutral" : "nervous", prop: v === 0 ? "mug" : null }, { i: 3 + v });
+      snow(out, cam, t, 50, 2, 16, 4);
       for (const [x, v] of [[-4, 1], [6, 2]] as const) E(G(v), `g${v}`, x, FLOOR, GZ - 0.1, { mode: "stand", expr: "neutral" }, { i: 10 + v });
       break;
     }
