@@ -339,7 +339,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     case 13: major({ expr: ex(t, [[0, "pained"], [18.36, "grin"]]) }); men(undefined, 4); break;
     case 14: case 18: {
       const n = id === 14 ? 3 : 1;
-      fx(out, `basket${n}`, 500, 360, basket(n), 1.1, 0.3, 1.4, 0.8, 0.58);
+      fx(out, `basket${n}`, 500, 360, basket(n), 1.1, 0.3, 1.4, 0.62, 0.45);
       break;
     }
     case 15: case 16: {
