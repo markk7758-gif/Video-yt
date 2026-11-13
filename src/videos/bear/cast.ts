@@ -422,7 +422,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       E(DINER(0), "din0", R + 0.15, 0.3, -3.35, { mode: "sit", expr: ex(t, [[0, "smile"], [EV.human, "grin"]]), facing: 1 }, { i: 120, shadow: false });
       E(DINER(1), "din1", R + 1.3, 0.3, -3.35, { mode: "sit", expr: "smile_closed", facing: 1 }, { i: 121, shadow: false });
       const pq = lidAt(t, 122);
-      out.places.push({ key: `pup|${pq}|${t > EV.human ? 1 : 0}`, x: R + 2.25, y: 0.48, z: -2.3, scale: 0.42, mirror: true, size: [720, 1200, 1.2], draw: (p) => puppyDraw(p, { blink: pq, lick: t > EV.human, light: light2D(cam, true) }) });
+      out.places.push({ key: `pup|${pq}|${t > EV.human ? 1 : 0}`, x: R + 2.25, y: 0.48, z: -2.3, scale: 0.55, mirror: true, size: [720, 1200, 1.2], draw: (p) => puppyDraw(p, { blink: pq, lick: t > EV.human, light: light2D(cam, true) }) });
       break;
     }
     // ---- one of the guys ----
