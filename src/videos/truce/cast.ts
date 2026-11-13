@@ -398,7 +398,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       break;
     }
     case 26: {
-      for (const [x, z, brit, v, i] of [[8.6, 15.2, true, 0, 1], [9.8, 15.0, false, 0, 2], [11.0, 15.1, true, 2, 5], [12.2, 15.0, false, 1, 12], [13.4, 15.2, true, 3, 6]] as const)
+      for (const [x, z, brit, v, i] of [[9.4, 18.2, true, 0, 1], [10.6, 18.4, false, 0, 2], [11.8, 18.3, true, 2, 5], [13.0, 18.4, false, 1, 12], [8.2, 18.4, false, 2, 13]] as const)
         E(brit ? T(v) : G(v), brit ? (v ? `t${v}` : "tommy") : `hans${v}`, x, 0, z, { mode: "stand", expr: "neutral", blink: 1, headTilt: 8 }, { i });
       break;
     }
