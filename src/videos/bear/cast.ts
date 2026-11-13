@@ -5,7 +5,7 @@
 // Cards, effects and blobs live on the NOINK layer so the world ink pass never outlines their quads.
 import * as THREE from "three";
 import {
-  Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxPuff, fxFire, fxQuestion, Outfit, Expr, FrontOpts, SideOpts, Prop,
+  Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxPuff, fxFire, fxQuestion, fxNote, Outfit, Expr, FrontOpts, SideOpts, Prop,
   POLE, GULAG, LOCAL_BOY, BRIT_OFFICER, CLERK, VETERAN, DINER, bearDraw, BearOpts, puppyDraw, fxBadge, fxFlagPL, fxPaybook, fxShout, fxNoPets,
 } from "./toon";
 import { FPS, V3, smooth, clamp01, EV, DOCK, CASS, ROOM, ZOO, BEAR, CUB, yCass, gangBear, gangY, climb } from "./story";
@@ -316,32 +316,32 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     // ---- out of the camps ----
     case 5: {
       for (let i = 0; i < 5; i++) {
-        const z = -6.5 + 0.55 * (t - 6.48) + (i % 2) * 1.3, x = -11.6 + i * 0.95;
+        const z = -3.6 + 0.5 * (t - 6.48) + (i % 2) * 1.1, x = -11.7 + i * 0.95;
         E(GULAG(i), `gu${i}`, x, 0, z, { mode: "stroll", phase: q((t * 0.9 + i * 0.27) % 1, 30), expr: (["sad", "dazed", "neutral", "sad", "pained"] as Expr[])[i] }, { i: 40 + i });
       }
       break;
     }
     case 6: case 7: {
-      E(LOCAL_BOY, "boy", 7.6, 0, 0.1, { mode: "stand", expr: ex(t, [[0, "smile"], [EV.buy, "grin"]]), prop: t > EV.buy ? "choc" : null, facing: 1 }, { i: 50 });
-      E(POLE(4), "p4", 9.35, 0, 0.1, { mode: "stand", expr: "smile", prop: t < EV.buy ? "choc" : null, facing: -1 }, { i: 51, flip: true });
+      E(LOCAL_BOY, "boy", 7.65, 0, 0.1, { mode: "stand", expr: ex(t, [[0, "smile"], [EV.buy, "grin"]]), prop: t > EV.buy ? "choc" : null, facing: 1 }, { i: 50 });
+      E(POLE(4), "p4", 9.15, 0, 0.1, { mode: "stand", expr: "smile", prop: t < EV.buy ? "choc" : null, facing: -1 }, { i: 51, flip: true });
       B(8.2, 0, 0.5, { mode: "sit", cub: true, expr: id === 7 ? ex(t, [[0, "neutral"], [EV.me, "smile_closed"]]) : "neutral", look: id === 6 ? -1 : 0 }, CUB, id === 7 ? EV.me : undefined);
       break;
     }
     case 8: {
-      E(POLE(1), "p1", -4.6, 0.5, -1.6, { mode: "sit", expr: ex(t, [[0, "smile_closed"], [EV.vodka, "grin"]]), facing: -1 }, { i: 52, shadow: false });
+      E(POLE(1), "p1", -4.75, 0.5, -1.6, { mode: "sit", expr: ex(t, [[0, "smile_closed"], [EV.vodka, "grin"]]), facing: -1 }, { i: 52, shadow: false });
       B(-5.6, 0, -0.85, { mode: "sit", cub: true, prop: "milk", expr: "smile_closed" }, CUB);
       break;
     }
     // ---- beer, cigarettes, wrestling ----
     case 9: {
       B(2.0, 0, -3.0, { mode: "sit", prop: "beer", expr: ex(t, [[0, "smile_closed"], [EV.beer, "grin"]]) }, BEAR, EV.beer);
-      E(POLE(2), "p2", 0.7, 0, -3.7, { mode: "stand", expr: "laugh" }, { i: 53 });
-      E(POLE(3), "p3", 3.4, 0, -3.6, { mode: "stand", expr: "grin", prop: "mug" }, { i: 54 });
+      E(POLE(2), "p2", 1.05, 0, -3.8, { mode: "stand", expr: "laugh" }, { i: 53 });
+      E(POLE(3), "p3", 3.1, 0, -3.7, { mode: "stand", expr: "grin", prop: "mug" }, { i: 54 });
       break;
     }
     case 10: {
       B(2.2, 0, -3.0, { prop: t > EV.cig - 0.07 ? "cig" : null, expr: ex(t, [[0, "neutral"], [EV.cig, "smile"]]) }, BEAR, EV.cig);
-      E(POLE(4), "p4", 3.35, 0, -3.3, { mode: "stand", expr: ex(t, [[0, "smile"], [EV.cig, "shock"]]), prop: t < EV.cig - 0.07 ? "cig" : null, facing: -1 }, { i: 55, flip: true });
+      E(POLE(4), "p4", 3.15, 0, -3.3, { mode: "stand", expr: ex(t, [[0, "smile"], [EV.cig, "shock"]]), prop: t < EV.cig - 0.07 ? "cig" : null, facing: -1 }, { i: 55, flip: true });
       break;
     }
     case 11: {
@@ -370,7 +370,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     }
     case 15: {
       E(CLERK, "clerk", X + 6.3, 0, -2.75, { mode: "stand", expr: "neutral", prop: ["stamp", t > EV.enlist ? clamp01(Math.sin((t - EV.enlist) * 9) * 0.5 + 0.5) : 0], facing: -1 }, { i: 76, flip: true });
-      B(X + 4.75, 0, -1.6, { expr: ex(t, [[0, "neutral"], [EV.enlist, "smile"]]) }, BEAR, EV.enlist);
+      B(X + 5.0, 0, -0.85, { expr: ex(t, [[0, "neutral"], [EV.enlist, "smile"]]) }, BEAR, EV.enlist);
       break;
     }
     case 16: {
@@ -394,22 +394,22 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       break;
     }
     case 20: {
-      [[9, -1.3, 1], [11.4, 0.6, 2], [13.6, -0.4, 3], [15.8, 1.2, 4]].forEach(([z0, dx, v], i) => {
-        const p = climb(t, 29.9, z0, 1.5);
+      [[5.6, -1.1, 1], [7.2, 0.6, 2], [8.8, -0.3, 3], [10.4, 1.1, 4]].forEach(([z0, dx, v], i) => {
+        const p = climb(t, 29.9, z0, 1.2);
         E(POLE(v, { hat: "brodie" }), `ph${v}`, K + dx, p[1], p[2], { mode: "stroll", phase: q((t * 1.0 + i * 0.3) % 1, 30), expr: i % 2 ? "pained" : "stern", prop: "crate" }, { i: 100 + i });
       });
       break;
     }
     case 21: {
-      E(POLE(1, { hat: "brodie" }), "ph1", K - 1.0, 0, -6.0, { mode: "stand", expr: "stern", prop: t > EV.swear - 0.07 ? "salute" : null, facing: 1 }, { i: 110, popAt: EV.swear });
-      E(POLE(2, { hat: "brodie" }), "ph2", K + 0.35, 0, -6.2, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.swear, "stern"]]), prop: t > EV.swear ? "pray" : null, facing: -1 }, { i: 111 });
+      E(POLE(1, { hat: "brodie" }), "ph1", K - 0.9, 0, -6.0, { mode: "stand", expr: "stern", prop: t > EV.swear - 0.07 ? "salute" : null, facing: 1 }, { i: 110, popAt: EV.swear });
+      E(POLE(2, { hat: "brodie" }), "ph2", K + 0.2, 0, -6.2, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.swear, "stern"]]), prop: t > EV.swear ? "pray" : null, facing: -1 }, { i: 111 });
       break;
     }
     case 22: { const p = climb(t, 33.81, 4.6, 1.1); B(K - 1.0, p[1], p[2], { mode: "walk", phase: (t * 1.4) % 1, prop: "crate", expr: ex(t, [[0, "smile"], [EV.did, "smile_closed"]]) }, BEAR, EV.did); break; }
     case 23: E(POLE(1, { hat: "brodie" }), "ph1", K - 1.0, 0, -6.0, { mode: "stand", expr: "shock" }, { i: 110, popAt: EV.wait }); break;
     case 24: {
       B(K - 1.0, 0, -0.4, { prop: "crate", expr: ex(t, [[0, "neutral"], [EV.why, "smile"]]), look: 1 }, BEAR);
-      if (t > EV.why - 0.05) { const k = Math.min(1, (t - EV.why + 0.05) / 0.15); fx(out, "question", 200, 300, fxQuestion, K - 0.55, 2.25, -0.4, 0.4 * k, 0.6 * k); }
+      if (t > EV.why - 0.05) { const k = Math.min(1, (t - EV.why + 0.05) / 0.15); fx(out, "question", 200, 300, fxQuestion, K - 0.45, 2.05, -0.4, 0.36 * k, 0.54 * k); }
       break;
     }
     case 25: {
@@ -419,8 +419,8 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     }
     // ---- the puppy ----
     case 26: {
-      E(DINER(0), "din0", R - 0.9, 0.3, -3.35, { mode: "sit", expr: ex(t, [[0, "smile"], [EV.human, "grin"]]), facing: 1 }, { i: 120, shadow: false });
-      E(DINER(1), "din1", R + 0.7, 0.3, -3.35, { mode: "sit", expr: "smile_closed", facing: 1 }, { i: 121, shadow: false });
+      E(DINER(0), "din0", R + 0.15, 0.3, -3.35, { mode: "sit", expr: ex(t, [[0, "smile"], [EV.human, "grin"]]), facing: 1 }, { i: 120, shadow: false });
+      E(DINER(1), "din1", R + 1.3, 0.3, -3.35, { mode: "sit", expr: "smile_closed", facing: 1 }, { i: 121, shadow: false });
       const pq = lidAt(t, 122);
       out.places.push({ key: `pup|${pq}|${t > EV.human ? 1 : 0}`, x: R + 2.25, y: 0.48, z: -2.3, scale: 0.42, mirror: true, size: [720, 1200, 1.2], draw: (p) => puppyDraw(p, { blink: pq, lick: t > EV.human, light: light2D(cam, true) }) });
       break;
@@ -428,8 +428,8 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     // ---- one of the guys ----
     case 27: {
       B(K - 8.0, 0, -9.9, { mode: "sit", prop: "mug", expr: ex(t, [[0, "grin"], [EV.guys, "laugh"]]) }, BEAR, EV.guys);
-      E(POLE(1), "p1", K - 9.2, 0.45, -9.4, { mode: "sit", expr: "laugh", prop: "mug", facing: 1 }, { i: 123, shadow: false });
-      E(POLE(2), "p2", K - 6.8, 0.45, -9.6, { mode: "sit", expr: ex(t, [[0, "grin"], [EV.guys, "laugh"]]), prop: "mug", facing: -1 }, { i: 124, shadow: false, flip: true });
+      E(POLE(1), "p1", K - 9.0, 0.45, -10.0, { mode: "sit", expr: "laugh", prop: "mug", facing: 1 }, { i: 123, shadow: false });
+      E(POLE(2), "p2", K - 7.0, 0.45, -10.1, { mode: "sit", expr: ex(t, [[0, "grin"], [EV.guys, "laugh"]]), prop: "mug", facing: -1 }, { i: 124, shadow: false, flip: true });
       break;
     }
     case 28: fx(out, "badge", 600, 600, fxBadge, K - 12, 1.75, -11.95, 1.5, 1.5); break;
@@ -456,7 +456,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       break;
     }
     case 33: {
-      fx(out, `flagLimp${q((t * 0.25) % 1, 10)}`, 300, 200, (p) => fxFlagPL(p, q((t * 0.25) % 1, 10)), X - 10.15, 4.05, -4.6, 1.3, 0.87);
+      fx(out, `flagLimp${q((t * 0.25) % 1, 10)}`, 300, 200, (p) => fxFlagPL(p, q((t * 0.25) % 1, 10)), X - 10.15, 3.15, -4.6, 1.3, 0.87);
       E(POLE(4), "p4", X - 9.9, 0, -2.2, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.free, "sad"]]) }, { i: 145 });
       break;
     }

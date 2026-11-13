@@ -137,7 +137,7 @@ export class World {
     M.pen = lam("penHD", () => ({ map: dirtTex() }));
     M.grass = lam("grassZoo", () => ({ map: grassHD() }));
     M.canvas = lam("tentCanvas", () => ({ map: canvasTex() }));
-    M.dark = lam("doorDark", () => ({ color: "#2e2630" }));
+    M.dark = lam("doorDark", () => ({ color: "#5a4630" }));
     M.post = lam("post", () => ({ color: "#5e4a36" }));
     M.crate = lam("crateWood", () => ({ map: planksHD(), color: new THREE.Color(0.95, 0.78, 0.56) }));
     M.planks = lam("pierPlanks", () => ({ map: planksHD(), color: new THREE.Color(0.86, 0.76, 0.64) }));
@@ -146,12 +146,12 @@ export class World {
     M.white = lam("shipWhite", () => ({ color: "#efe9dc" }));
     M.funnel = lam("funnel", () => ({ color: "#c9a24a" }));
     M.iron = twoTone(new THREE.MeshPhongMaterial({ color: "#4a4e46", specular: "#8a8a8a", shininess: 40 }), 0.15);
-    M.olive = lam("gunOlive", () => ({ color: "#6a6a44" }));
+    M.olive = lam("gunOlive", () => ({ color: "#8a8a58" }));
     M.rock = lam("rock", () => ({ color: "#a89a86" }));
     M.rockDark = lam("rockDark", () => ({ color: "#8a7c6c" }));
     M.mountain = lam("mountain", () => ({ color: "#b98e66" }));
     M.mountain2 = lam("mountain2", () => ({ color: "#a37f66" }));
-    M.hill = lam("cassinoHill", () => ({ map: earthTex(), color: new THREE.Color(0.9, 0.95, 0.8) }));
+    M.hill = lam("cassinoHill", () => ({ map: earthTex(), color: new THREE.Color(0.78, 1.0, 0.62) }));
     M.abbey = lam("abbeyHD", () => ({ map: stoneHD("abbeyHD", ["#e8dfcf", "#e0d6c4", "#efe7da", "#d8ccb8"], "#b0a390") }));
     M.bark = lam("deadBark", () => ({ color: "#5e4a3a" }));
     M.stoneWall = lam("zooWallHD", () => ({ map: stoneHD("zooWallHD", ["#a9a297", "#9f978a", "#b4ad9f", "#958d80"], "#6f685e") }));
@@ -182,7 +182,7 @@ export class World {
       for (const [x, z] of [[2.0, -4.4], [3.2, -4.6], [2.6, -4.2], [-4.6, -1.6], [-6.8, -1.2], [10.2, -1.8], [-3.6, -5.2], [6.2, -3.8]] as const) crate(b, M, x, 0, z, 0.55, r() * 0.6);
       crate(b, M, 2.6, 0.5, -4.4, 0.5, 0.3); crate(b, M, -6.8, 0.5, -1.2, 0.5, -0.2);
       // a supply truck parked by the tents
-      const tx = -9, tz = -5;
+      const tx = -24, tz = -4;
       b.add(boxGeo(V(tx - 1.2, 0.5, tz - 3), V(tx + 1.2, 2.6, tz + 0.6)), M.canvas);
       b.add(boxGeo(V(tx - 1.15, 0.5, tz + 0.6), V(tx + 1.15, 2.0, tz + 2.3)), M.olive);
       b.add(boxGeo(V(tx - 1.0, 1.4, tz + 2.3), V(tx + 1.0, 1.9, tz + 2.34)), M.glass);
@@ -195,7 +195,7 @@ export class World {
         b.add(new THREE.ConeGeometry(rad, h, 7 + (i % 3)).translate(Math.cos(a) * d, h / 2 - 2, Math.sin(a) * d - 40), i % 2 ? M.mountain : M.mountain2);
       }
       // sparse olive scrub
-      for (let i = 0; i < 70; i++) { const a = r() * Math.PI * 2, d = 10 + r() * 90; prop(b, {}, "plant_bush", Math.cos(a) * d, 0, Math.sin(a) * d - 6, 0.6 + r() * 0.7, r() * 6); }
+      for (let i = 0; i < 70; i++) { const a = r() * Math.PI * 2, d = 26 + r() * 80; prop(b, {}, "plant_bush", Math.cos(a) * d, 0, Math.sin(a) * d - 6, 0.6 + r() * 0.7, r() * 6); }
       for (let i = 0; i < 6; i++) { const a = r() * Math.PI * 2, d = 26 + r() * 40; prop(b, {}, "tree_fat", Math.cos(a) * d, 0, Math.sin(a) * d - 10, 4 + r() * 2, r() * 6); }
       b.build(P);
     }
@@ -232,7 +232,7 @@ export class World {
       for (let i = 0; i < 7; i++) b.add(new THREE.CylinderGeometry(0.05, 0.06, 1.3, 6).translate(X - 13 + i * 1.1, 0.65, -2.9), M.post);
       for (const y of [0.45, 0.8, 1.15]) b.add(new THREE.CylinderGeometry(0.012, 0.012, 6.6, 4).rotateZ(Math.PI / 2).translate(X - 9.7, y, -2.9), M.wire);
       for (let i = 0; i < 40; i++) b.add(new THREE.TorusGeometry(0.11, 0.008, 4, 8).rotateY(0.6).translate(X - 13 + i * 0.165, 0.8 + 0.35 * Math.sin(i), -2.9), M.wire);
-      b.add(new THREE.CylinderGeometry(0.05, 0.07, 4.6, 8).translate(X - 10.8, 2.3, -4.6), M.post);
+      b.add(new THREE.CylinderGeometry(0.05, 0.07, 3.7, 8).translate(X - 10.8, 1.85, -4.6), M.post);
       b.build(P);
     }
 
@@ -243,13 +243,15 @@ export class World {
       b.add(quad(V(K - 300, 0, 0), V(K - 300, -6.72, 24), V(K + 300, -6.72, 24), V(K + 300, 0, 0), 120, 5), M.earth);
       b.add(flat(K - 600, K + 600, 24, 900, -6.72, 8), M.earth);
       // the monastery on its hill, far across the valley
-      b.add(new THREE.ConeGeometry(150, 118, 12).translate(K + 10, -6.72 + 59, 320), M.hill);
-      b.add(new THREE.ConeGeometry(110, 70, 10).translate(K - 150, -6.72 + 35, 380), M.mountain2);
-      b.add(new THREE.ConeGeometry(130, 90, 10).translate(K + 190, -6.72 + 45, 400), M.mountain2);
-      const ay = -6.72 + 112;
-      b.add(boxGeo(V(K - 22, ay - 6, 300), V(K + 42, ay + 9, 330)), M.abbey);
-      b.add(boxGeo(V(K - 6, ay + 9, 306), V(K + 22, ay + 16, 324)), M.abbey);
-      for (let i = 0; i < 8; i++) b.add(boxGeo(V(K - 18 + i * 7.5, ay + 1, 299.6), V(K - 15 + i * 7.5, ay + 5.5, 300.2)), M.dark);
+      b.add(new THREE.SphereGeometry(1, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2).scale(125, 112, 95).translate(K + 10, -6.72, 320), M.hill);
+      b.add(new THREE.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2).scale(120, 70, 90).translate(K - 160, -6.72, 390), M.hill);
+      b.add(new THREE.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2).scale(140, 86, 100).translate(K + 200, -6.72, 410), M.hill);
+      const ay = -6.72 + 110;
+      b.add(boxGeo(V(K - 30, ay - 8, 300), V(K + 50, ay + 12, 334)), M.abbey);
+      b.add(boxGeo(V(K - 8, ay + 12, 306), V(K + 26, ay + 22, 326)), M.abbey);
+      b.add(new THREE.CylinderGeometry(5, 5, 14, 12).translate(K + 9, ay + 29, 316), M.abbey);
+      b.add(new THREE.ConeGeometry(6, 8, 12).translate(K + 9, ay + 40, 316), M.post);
+      for (let i = 0; i < 10; i++) b.add(boxGeo(V(K - 26 + i * 7.6, ay - 1, 299.4), V(K - 22.5 + i * 7.6, ay + 6, 300.2)), M.dark);
       // the gun on the plateau, barrel pointing out over the valley
       const gx = K + 3, gz = -3;
       b.add(new THREE.CylinderGeometry(0.13, 0.18, 3.6, 12).rotateX(Math.PI / 2 - 0.38).translate(gx, 1.75, gz + 1.5), M.olive);
@@ -257,9 +259,8 @@ export class World {
       for (const sd of [-1, 1]) b.add(new THREE.TorusGeometry(0.62, 0.1, 8, 20).rotateY(Math.PI / 2).translate(gx + sd * 0.95, 0.62, gz + 0.3), M.dark);
       for (const sd of [-1, 1]) b.add(boxGeo(V(gx + sd * 0.3 - 0.08, 0.1, gz - 3.2), V(gx + sd * 0.3 + 0.08, 0.3, gz + 0.2)), M.olive);
       // sandbag ring, crate stacks, shattered trees, rocks
-      for (let i = 0; i < 14; i++) { const a = -0.2 + (i / 13) * (Math.PI + 0.4), rr = 3.2; b.add(boxGeo(V(-0.4, 0, -0.22), V(0.4, 0.45, 0.22)), M.canvas, new THREE.Matrix4().makeRotationY(-a).setPosition(gx + Math.cos(a) * rr, 0, gz - 0.6 - Math.sin(a) * rr * 0.6)); }
       for (const [x, z, y] of [[K - 2.5, -2.4, 0], [K - 1.6, -2.6, 0], [K - 2.1, -2.5, 0.54], [K - 3.6, -3.4, 0], [K + 7, -5, 0], [K + 7.8, -4.6, 0]] as const) crate(b, M, x, y, z, 0.6, r() * 0.4);
-      for (const [x, z] of [[K - 8.6, -10.4], [K - 7.4, -10.6], [K - 9.2, -9.4], [K - 6.8, -9.6]] as const) crate(b, M, x, 0, z, 0.5, r());
+      for (const [x, z] of [[K - 8.6, -10.4], [K - 7.4, -10.6], [K - 9.0, -10.0], [K - 7.0, -10.1]] as const) crate(b, M, x, 0, z, 0.5, r());
       for (let i = 0; i < 24; i++) {
         const x = K - 60 + r() * 120, z = -40 + r() * 34; if (Math.abs(x - K) < 14 && z > -18) continue;
         const h = 2 + r() * 4; b.add(new THREE.CylinderGeometry(0.1, 0.18, h, 6).translate(0, h / 2, 0).applyMatrix4(new THREE.Matrix4().makeRotationZ((r() - 0.5) * 0.4)).translate(x, 0, z), M.bark);
