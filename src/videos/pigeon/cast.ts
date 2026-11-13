@@ -418,10 +418,10 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       break;
     }
     case 34: {
-      E(FRENCH_GENERAL, "fg", LX + 0.9, 0, LZ + 2.6, { mode: "stand", expr: "smile", prop: t < EV.medal ? "button" : null, facing: -1 }, { i: 72, popAt: EV.medal });
-      pigeon(out, cam, t, LX - 0.35, 1.0, LZ + 2.6, { mode: "stand", expr: "proud", eyeX: true, leg: 1, bandage: true, medal: t > EV.medal }, false, false);
-      fx(out, "crate", 200, 200, (p: Pen) => { p.poly([[10, 10], [190, 10], [190, 190], [10, 190]], "#a8724a", 8); p.stroke([[10, 10], [190, 190]], 8, "#7a4f33"); }, LX - 0.35, 0.5, LZ + 2.62, 0.5, 0.5 * 2);
-      burst(out, t, EV.medal, LX - 0.3, 1.25, LZ + 2.7, 0.5, "#ffe07a");
+      E(FRENCH_GENERAL, "fg", LX + 0.4, 0, LZ + 2.6, { mode: "stand", expr: "smile", prop: t < EV.medal ? "button" : null, facing: -1 }, { i: 72, popAt: EV.medal });
+      pigeon(out, cam, t, LX - 0.2, 1.0, LZ + 2.6, { mode: "stand", expr: "proud", eyeX: true, leg: 1, bandage: true, medal: t > EV.medal }, false, false);
+      fx(out, "crate", 200, 200, (p: Pen) => { p.poly([[10, 10], [190, 10], [190, 190], [10, 190]], "#a8724a", 8); p.stroke([[10, 10], [190, 190]], 8, "#7a4f33"); }, LX - 0.2, 0.5, LZ + 2.62, 0.5, 0.5 * 2);
+      burst(out, t, EV.medal, LX - 0.15, 1.25, LZ + 2.7, 0.5, "#ffe07a");
       break;
     }
     case 35: pigeon(out, cam, t, onBoard[0], onBoard[1], onBoard[2], { mode: "stand", expr: "smug", eyeX: true, leg: t > EV.leg - 0.07 ? 2 : 1, bandage: true, medal: true, squash: t > EV.leg - 0.07 && t < EV.leg + 0.08 ? -0.15 : 0 }, true, false); break;
@@ -432,7 +432,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       break;
     }
     case 38: {
-      E(SCIENTIST, "sci", H + 0.4, 0, -1.0, { mode: "stand", expr: "grin", facing: -1 }, { i: 75 });
+      E(SCIENTIST, "sci", H + 0.3, 0, -1.0, { mode: "stand", expr: "grin", facing: -1, look: -1 }, { i: 75 });
       pigeon(out, cam, t, H - 0.6, 1.0, -1.9, { mode: "stand", expr: "neutral", eyeX: true, leg: 2, medal: true }, true, false);
       break;
     }
@@ -440,8 +440,8 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     case 40: case 41: {
       const boy = id === 41 && t > EV.boy - 0.07;
       pigeon(out, cam, t, H - 0.6, 1.0, -1.3, { mode: "stand", expr: boy ? "smug" : "neutral", eyeX: true, leg: 2, medal: true, bow: !boy, squash: boy && t < EV.boy + 0.15 ? -0.15 : 0 }, true, false);
-      if (!boy) fx(out, "female", 300, 360, fxFemaleX, H - 0.95, 1.6, -1.25, 0.28, 0.34);
-      else { fx(out, "male", 300, 300, fxMale, H - 0.95, 1.6, -1.25, 0.3, 0.3); burst(out, t, EV.boy, H - 0.6, 1.45, -1.25, 0.6, "#bfe0ff"); }
+      if (!boy) fx(out, "female", 300, 360, fxFemaleX, H - 0.55, 1.75, -1.25, 0.26, 0.31);
+      else { fx(out, "male", 300, 300, fxMale, H - 0.6, 1.62, -1.25, 0.24, 0.24); burst(out, t, EV.boy, H - 0.6, 1.45, -1.25, 0.6, "#bfe0ff"); }
       if (id === 41 && t > EV.boy && t < EV.boy + 0.5) fx(out, "bowfly", 200, 120, (p: Pen) => { p.poly([[100, 60], [20, 20], [20, 100]], "#f28fb5", 6); p.poly([[100, 60], [180, 20], [180, 100]], "#f28fb5", 6); }, H - 0.5 - (t - EV.boy), 1.45 + 1.2 * (t - EV.boy), -1.25, 0.15, 0.09, t * 8);
       break;
     }
