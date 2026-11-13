@@ -450,14 +450,19 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       break;
     }
     case 39: {
-      E(T(0), "tommy", -0.3, FLOOR, 0.3, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.firing, "shock"]]), tilt: t > EV.firing ? -6 : 0 }, { i: 1 });
+      E(T(0), "tommy", 0, STEP, STEPZ, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.firing, "shock"]]), tilt: t > EV.firing ? -6 : 0 }, { i: 1 });
       boom(out, t, EV.firing, -2.5, 12, 6); boom(out, t, 56.2, 4, 18, 7); boom(out, t, 56.45, -7, 22, 6);
       snow(out, cam, t, 40, 1, 12, 3);
       break;
     }
+    case 40: {
+      for (const [x, v] of [[-6, 1], [-2.5, 2], [1.5, 3], [5, 1]] as const) E(T(v), `t${v}`, x, FLOOR, 0.1, { mode: "stand", expr: "neutral" }, { i: 3 + v });
+      for (const [x, v] of [[-4, 1], [0, 0], [4.5, 2]] as const) E(G(v), `hans${v}`, x, FLOOR, GZ - 0.1, { mode: "stand", expr: "neutral" }, { i: 10 + v });
+      break;
+    }
     case 41: {
-      E(T(0), "tommy", 3.25, 0, TREE_Z - 3.2, { mode: "stand", expr: "smile_closed", facing: 1 }, { i: 1 });
-      E(G(0), "hans0", 1.75, 0, TREE_Z - 3.2, { mode: "stand", expr: "smile_closed", facing: 1 }, { i: 2, flip: true });
+      E(T(0), "tommy", 3.1, 0, TREE_Z - 1.9, { mode: "stand", expr: "smile_closed", facing: 1 }, { i: 1 });
+      E(G(0), "hans0", 1.9, 0, TREE_Z - 1.9, { mode: "stand", expr: "smile_closed", facing: 1 }, { i: 2, flip: true });
       snow(out, cam, t, 70, 1, 16, 4);
       break;
     }
