@@ -368,7 +368,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
       pigeon(out, cam, t, 0.95, 0.66, 1.45, { mode: "stand", expr: "proud", canister: t > EV.note }, true, true, 93);
       break;
     }
-    case 21: fx(out, "notepaper", 400, 260, fxNotePaper, 0.9, 1.25, 1.42, 0.62, 0.4, -0.05 + 0.02 * Math.sin(t * 2)); break;
+    case 21: fx(out, "notepaper", 400, 260, fxNotePaper, 0.9, 1.25, 1.42, 0.42, 0.27, -0.05 + 0.02 * Math.sin(t * 2)); break;
     case 22: case 23: case 24: {
       const p = heroFly(t), hit = t > EV.shot, down = t > EV.falls - 0.3 && t < 32.9;
       pigeon(out, cam, t, p[0], p[1], p[2], { mode: down ? "fall" : "fly", phase: (t * (hit ? 4.2 : 3.2)) % 1, expr: hit ? (t > 33.3 ? "proud" : "pained") : "neutral", canister: true, leg: hit ? 1 : 0, eyeX: hit, bandage: false, tilt: down ? 30 : 0 }, false, false, 93);
