@@ -391,7 +391,9 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     }
     case 28: {
       const u = clamp01((t - 40.0) / 1.4);
-      E(HISTORIAN(1), "h1", H + 1.6 - 1.7 * u, 0, -1.2, { mode: "stand", expr: "smile_closed", blink: 1 }, { i: 70 });
+      // walks to the bed in the dark (eyes shut), then sits down on it
+      const sit = t > 40.75;
+      E(HISTORIAN(1), "h1", sit ? H + 0.15 : H + 1.6 - 1.45 * u, sit ? 0.5 : 0, sit ? -2.5 : -1.2, { mode: sit ? "sit" : "stand", expr: "smile_closed", blink: 1 }, { i: 70, shadow: !sit, popAt: sit ? 40.76 : undefined });
       break;
     }
     case 29: {
@@ -403,7 +405,7 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     case 30: {
       const u = clamp01((t - 43.9) / 1.4), land = t > EV.lands;
       pigeon(out, cam, t, LX - 0.05 + 2.4 * (1 - u), 2.2 + 1.6 * (1 - u) ** 2, LZ + 1.35 + 0.8 * (1 - u), { mode: land ? "stand" : "fly", phase: (t * 3.4) % 1, leg: 1, eyeX: true, canister: true, expr: "pained", bandage: land, squash: land && t < EV.lands + 0.12 ? 0.2 : 0 }, true, false, 93);
-      E(HANDLER, "handler", LX + 1.25, 0, LZ + 1.4, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.lands, "shock"]]), facing: -1 }, { i: 71 });
+      E(HANDLER, "handler", LX + 1.05, 0, LZ + 1.7, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.lands, "shock"]]), facing: -1 }, { i: 71 });
       puffs(out, t, EV.lands, [[LX, 2.25, LZ + 1.4]], 0.35, 0.5);
       break;
     }
