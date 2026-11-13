@@ -341,8 +341,8 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     case 8: E(POPE, "pope", H, 0, -0.6, { mode: "stand", expr: ex(t, [[0, "nervous"], [EV.begged, "relief"], [11.6, "nervous"]]), prop: "pray" }, { i: 7 }); break;
     case 9: {
       const shake = t > EV.no - 0.1 ? Math.sin((t - EV.no) * 24) * 7 * Math.max(0, 1 - (t - EV.no) / 0.5) : 0;
-      E(BRIT_GENERAL, "bg", H - 0.85, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.no, "stern"]]), headTilt: shake, facing: 1 }, { i: 8 });
-      E(GER_GENERAL, "gg", H + 0.85, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.no, "stern"]]), headTilt: -shake, facing: -1 }, { i: 9 });
+      E(BRIT_GENERAL, "bg", H - 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.no, "stern"]]), headTilt: shake, facing: 1 }, { i: 8 });
+      E(GER_GENERAL, "gg", H + 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "neutral"], [EV.no, "stern"]]), headTilt: -shake, facing: -1 }, { i: 9 });
       break;
     }
     case 10: tommyPeek({ expr: ex(t, [[0, "neutral"], [14.92, "shock"]]) }); snow(out, cam, t, 40, 1, 10, 3); break;
@@ -438,8 +438,8 @@ export const stage = (id: number, t: number, cam: CamInfo, light: LightName): St
     }
     case 36: tommyPeek({ expr: ex(t, [[0, "neutral"], [51.54, "smile_closed"]]) }); break;
     case 37: {
-      E(BRIT_GENERAL, "bg", H - 0.85, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "stern"], [EV.hated, "shock"]]), prop: "fist", facing: 1 }, { i: 8 });
-      E(GER_GENERAL, "gg", H + 0.85, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "stern"], [EV.hated, "shock"]]), facing: -1 }, { i: 9 });
+      E(BRIT_GENERAL, "bg", H - 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "stern"], [EV.hated, "shock"]]), prop: "fist", facing: 1 }, { i: 8 });
+      E(GER_GENERAL, "gg", H + 0.5, 0, -0.5, { mode: "stand", expr: ex(t, [[0, "stern"], [EV.hated, "shock"]]), facing: -1 }, { i: 9 });
       break;
     }
     case 38: {
