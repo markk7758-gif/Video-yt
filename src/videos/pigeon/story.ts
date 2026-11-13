@@ -137,11 +137,11 @@ const CAMS: Record<number, Key[]> = {
   21: [{ f: at(28.64), s: D(28.64, [0.9, 1.25, 3.0], [0.9, 1.25, 1.42], { fov: 32 }, 0.003) }],
   22: [{ f: at(30.05), s: (f) => { const p = heroFly(f / FPS); return { pos: [p[0] - 0.4, p[1] - 0.2, p[2] + 2.6], look: p, fov: 42, roll: f / FPS > EV.shot ? 0.1 : 0 }; } }],
   23: [{ f: at(31.69), s: (f) => { const p = heroFly(f / FPS); return { pos: [p[0] + 0.8, 1.3, p[2] + 2.6], look: [p[0], Math.max(0.4, p[1]), p[2]], fov: 44, roll: -0.06 }; } }],
-  24: [{ f: at(32.52), s: (f) => { const p = heroFly(f / FPS); return { pos: [p[0] - 0.6, 0.6, p[2] + 2.8], look: [p[0], Math.max(0.5, p[1]), p[2]], fov: 46 }; } }],
+  24: [{ f: at(32.52), s: (f) => { const p = heroFly(f / FPS); return { pos: [p[0] - 0.5, p[1] - 0.35, p[2] + 2.4], look: [p[0], Math.max(0.5, p[1]), p[2]], fov: 44, roll: 0.04 }; } }],
   25: [{ f: at(34.82), s: D(34.82, [-1.05, 1.75, 4.0], [-1.3, 1.65, 1.8], { fov: 32, roll: 0.06 }, 0.004, 0.03, 8) }],
   26: [{ f: at(35.27), s: (f) => { const u = (f / FPS - 35.27) / 2.06, x = -8 + 5 * u, y = 6.5 + 1.5 * u, z = 4 * u; return { pos: [x - 0.6, y + 0.2, z + 3.2], look: [x, y + 0.3, z], fov: 42 }; } }],
   // homing: the loft, the bed, the bullets
-  27: [{ f: at(37.33) - 4, s: C(37.33, 39.97, { pos: [LX + 7, 3.2, LZ + 9], look: [LX, 2.6, LZ], fov: 44 }, { pos: [LX + 4.5, 3.0, LZ + 6.5], look: [LX, 2.8, LZ], fov: 42 }) }],
+  27: [{ f: at(37.33) - 4, s: C(37.33, 39.97, { pos: [LX + 3.4, 3.0, LZ + 6.2], look: [LX + 0.6, 2.7, LZ + 1.3], fov: 44 }, { pos: [LX + 1.6, 2.8, LZ + 4.4], look: [LX + 0.2, 2.55, LZ + 1.3], fov: 42 }) }],
   28: [{ f: at(39.97), s: D(39.97, [H + 2.2, 1.7, 2.6], [H, 0.9, -2.4], { fov: 44 }, 0.003) }],
   29: [{ f: at(41.65), s: (f) => { const t = f / FPS, x = -14 + 9 * (t - 41.65); return { pos: [x - 1.2, 7.6, 1.8], look: [x + 0.4, 7.4, 0], fov: 40, roll: 0.03 }; } }],
   30: [{ f: at(43.84), s: D(43.84, [LX + 1.6, 2.9, LZ + 5.6], [LX + 0.6, 2.3, LZ + 1.6], { fov: 46 }, 0.003) }],

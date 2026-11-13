@@ -145,7 +145,7 @@ export class World {
     M.pine = lam("pine", () => ({ color: "#2f6a3f" }));
     M.candle = new THREE.MeshBasicMaterial({ color: new THREE.Color(3.2, 2.4, 1.2) }); // HDR: blooms
     M.wax = lam("wax", () => ({ color: "#f4eedc" }));
-    M.grass = lam("grassHD", () => ({ map: grassHD(), color: new THREE.Color(0.8, 0.78, 0.6) }));
+    M.grass = lam("grassAutumn", () => ({ map: grassHD(), color: new THREE.Color(0.66, 0.6, 0.42) })); // trampled autumn grass
     M.loftWood = lam("loftWood", () => ({ map: planksHD(), color: new THREE.Color(0.95, 0.8, 0.62) }));
     M.roofR = lam("roofRed", () => ({ map: roofHD("#b8644f"), side: THREE.DoubleSide }));
     M.iron = twoTone(new THREE.MeshPhongMaterial({ color: "#4a4e46", specular: "#8a8a8a", shininess: 40 }), 0.15);
