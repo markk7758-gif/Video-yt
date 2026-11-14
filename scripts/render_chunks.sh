@@ -6,8 +6,8 @@ OUT=$1; SCALE=$2; PROPS=$3; CH=${4:-200}; TOTAL=${TOTAL:-1872}; COMP=${COMP:-Goo
 mkdir -p "$OUT"
 for ((a=0; a<TOTAL; a+=CH)); do
   b=$((a+CH-1)); [ $b -ge $TOTAL ] && b=$((TOTAL-1))
-  last=$(printf "%s/element-%04d.jpeg" "$OUT" $b)
-  [ -f "$last" ] && continue
+  # Remotion's zero padding depends on the frame range, so match the frame number with any padding
+  ls "$OUT" | grep -qE "^element-0*$b\.jpeg$" && continue
   npx remotion render src/index.ts "$COMP" "$OUT" --sequence --image-format=jpeg --jpeg-quality=92 --frames=$a-$b --scale=$SCALE \
     --gl=swangle --concurrency=2 --timeout=900000 --props="$PROPS" --log=error >> "$OUT/render.log" 2>&1
   echo "chunk $a-$b exit $?" >> "$OUT/render.log"
